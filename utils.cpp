@@ -48,10 +48,52 @@ quarternion RandomRotate(quarternion old, double step,double a,double b,double c
 {
     
     double theta=2.0*M_PI*a*step;
-    double alpha=acos(2.0*b-1.0)*step;
-    double beta=2.0*M_PI*(c-0.5)*step;
+    double alpha=acos(2.0*b-1.0);
+    double beta=2.0*M_PI*(c-0.5);
     quarternion rotate=angle_to_quarternion(theta,alpha,beta);
     quarternion neworientation=quartermulti(rotate,old);
     neworientation.normalize();
     return neworientation;
 }
+int getNum(vector<int>& v)
+{
+ 
+    // Size of the vector
+    int n = v.size();
+ 
+    // Generate a random number
+    srand(time(NULL));
+ 
+    // Make sure the number is within
+    // the index range
+    int index = rand() % n;
+ 
+    // Get random number from the vector
+    int num = v[index];
+ 
+    // Remove the number from the vector
+    swap(v[index], v[n - 1]);
+    v.pop_back();
+ 
+    // Return the removed number
+    return num;
+}
+ 
+// Function to generate n non-repeating random numbers
+vector<int> generateRandom(int n)
+{
+    vector<int> v(n);
+ 
+    // Fill the vector with the values
+    // 1, 2, 3, ..., n
+    for (int i = 0; i < n; i++)
+        v[i] = i + 1;
+    vector<int> randomv;
+    // While vector has elements
+    // get a random number from the vector and print it
+    while (v.size()) {
+        randomv.push_back(getNum(v));
+    }
+    return randomv;
+}
+ 

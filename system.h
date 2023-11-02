@@ -16,6 +16,10 @@ class System
     int NMOL; //Number of molecules
     double arm_L=1.1;
     double bond_length=0.28;
+    double bond_extension=0.1;
+    double maxl2_bond=pow(bond_length+bond_extension,2);
+    double cm_L=arm_L*2+bond_length;
+    double max2_cm=pow(cm_L+bond_extension,2);
     double L; //Length of box
     int GSL_SEED; //Seed of random number generator
     int nsweep; //Number of MC sweeps

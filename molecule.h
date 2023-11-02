@@ -4,14 +4,17 @@
 #include "header.h"
 #include "xyz.h"
 #include "quarternion.h"
+#include "hbond.h"
 class Molecule
 {
 public:
     int MOL_ID;//molecule ID
     int N_VER; //Number of vertices
     vector<XYZ> ver; //Coordinates of vertices
-    vector<XYZ> aorigin;
-
+    vector<char> vertype;//type of vertices: A, B, C, D, I(inactive)
+    vector<XYZ> aorigin;//original vertices
+    int nbonds;//number of bonds
+    vector<hbond> hbond_list;//list of hbonded neighbors and information
     XYZ centre; //Coordinates of centre
     quarternion orientation;
     Molecule() //HARD CODE BASED ON VERTEX INFORMATION,unit length=1nm
