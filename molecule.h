@@ -21,6 +21,12 @@ public:
     {
         N_VER=6;
         centre.set(0.0,0.0,0.0);
+        vertype.push_back('A');
+        vertype.push_back('A');
+        vertype.push_back('A');
+        vertype.push_back('A');
+        vertype.push_back('A');
+        vertype.push_back('A');
         ver.push_back(XYZ(1.0,0.0,0.47));
         ver.push_back(XYZ(1.0,0.0,-0.47));
         ver.push_back(XYZ(-0.5,0.8660254,0.47));

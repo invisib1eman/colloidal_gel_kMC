@@ -11,7 +11,7 @@ double myfmod(double x, double y);
 XYZ RandomTranslate(XYZ old, double step,double u,double v);
 
 quarternion RandomRotate(quarternion old, double step,double a,double b,double c);
-int getNum(vector<int>& v)
-void generateRandom(int n)
+int getNum(vector<int>& v);
+vector<int> generateRandom(int n);
 
 #endif

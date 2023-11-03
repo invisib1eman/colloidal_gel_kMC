@@ -59,35 +59,35 @@ double MC::MoveMolecule()
 {
     
     double accept=0.0;
-    vector<int> sequence_M;
-    sequence_M=generateRandom(S.NMOL);//randomly generate a sequence of the N molecules
+    //vector<int> sequence_M=generateRandom(S.NMOL);//randomly generate a sequence of the N molecules;
     for(int i=0; i<S.NMOL; i++)
     {
         //int i=gsl_rng_uniform_int(S.gsl_r,S.NMOL);
-        index=sequence_M[i];//index of the current trial molecule
+        int index=i;
+        //int index=sequence_M[i];//index of the current trial molecule
         Molecule newmolecule=S.M[index];
         newmolecule.centre=RandomTranslate(S.M[index].centre,S.MCstep,gsl_rng_uniform(S.gsl_r),gsl_rng_uniform(S.gsl_r));
         newmolecule.orientation=RandomRotate(S.M[index].orientation,S.MCstep,gsl_rng_uniform(S.gsl_r),gsl_rng_uniform(S.gsl_r),gsl_rng_uniform(S.gsl_r));
         newmolecule.UpdateVertices();
         int new_hbond=-1;
-        vec<hbond> new_hbondlist;
+        vector<hbond> new_hbondlist;
 	    double r2_newbond=S.L*S.L;
         for (int j=0;j<S.NMOL;j++)//loop over all molecules;lately can be improved by celllist
         {   
             if (j!=index)
             {
-                double r2_cm=min_d2(S.M[index],S.M[j],S.L);
+                double r2_cm=min_d2(S.M[index].centre,S.M[j].centre,S.L);
                 if (r2_cm<S.max2_cm)//check if the cm distance is in the range, can save time
                 {
                     for(int k=0;k<S.M[index].N_VER;k++)
                     {
                         for(int l=0;l<S.M[j].N_VER;l++)
                         {
-                            double r2_arms=min_d2(S.M[index].ver[k],S.M[j].ver[l]);
+                            double r2_arms=min_d2(S.M[index].ver[k],S.M[j].ver[l],S.L);
                             if (r2_arms<S.maxl2_bond&&S.M[index].vertype[k]=='A'&&S.M[j].vertype[l]=='A')
                             {
                                 
-                                new_hbondlist.push_back(h_bond(index,j,k,l));
+                                new_hbondlist.push_back(hbond(index,j,k,l));
                                 new_hbond=1;
                             }
                         }
@@ -99,11 +99,14 @@ double MC::MoveMolecule()
         if (new_hbond!=-1)
         {
             for(int m=0;m<new_hbondlist.size();m++) 
-            S.M[index].hbond_list.push_back(new_hbondlist[m])
-            S.M[index].vertype[new_hbondlist[m].arm1]='I'
-            S.M[new_hbondlist[m].M2].hbond_list.push_back(h_bond(new_hbondlist[m].M2,new_hbondlist[m].M1,new_hbondlist[m].arm2,new_hbondlist[m].arm1))
-            S.M[new_hbondlist[m].M2].vertype[new_hbondlist[m].arm2]='I'
+            {
+                S.M[index].hbond_list.push_back(new_hbondlist[m]);
+                S.M[index].vertype[new_hbondlist[m].arm1]='I';
+                S.M[new_hbondlist[m].M2].hbond_list.push_back(hbond(new_hbondlist[m].M2,new_hbondlist[m].M1,new_hbondlist[m].arm2,new_hbondlist[m].arm1));
+                S.M[new_hbondlist[m].M2].vertype[new_hbondlist[m].arm2]='I';
         }
+            }
+            
         S.M[index]=newmolecule;
     }
     return accept/double(S.NMOL);

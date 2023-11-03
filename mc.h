@@ -4,6 +4,7 @@
 #include "system.h"
 #include "utils.h"
 #include "molecule.h"
+#include "hbond.h"
 //#include "energies.h"
 class MC
 {
