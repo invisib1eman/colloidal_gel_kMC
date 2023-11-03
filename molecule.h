@@ -20,6 +20,7 @@ public:
     Molecule() //HARD CODE BASED ON VERTEX INFORMATION,unit length=1nm
     {
         N_VER=6;
+        nbonds=0;
         centre.set(0.0,0.0,0.0);
         vertype.push_back('A');
         vertype.push_back('A');

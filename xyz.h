@@ -16,6 +16,7 @@ class XYZ
       double real_d(XYZ& other){return sqrt((x-other.x)*(x-other.x)+(y-other.y)*(y-other.y)+(z-other.z)*(z-other.z));}
       void my_abs(){x=fabs(x); y=fabs(y); z=fabs(z);}
       double norm2(){ return x*x+y*y+z*z; }
+      double norm(){return sqrt(x*x+y*y+z*z);}
 
 };
 #endif

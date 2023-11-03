@@ -10,6 +10,7 @@ class MC
 {
     public:
         System S;
+        Energy E;
         double energy, time;
         //new vector for molecule
         vector<Molecule> Mnew;
