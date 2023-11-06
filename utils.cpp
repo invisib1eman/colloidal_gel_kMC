@@ -99,19 +99,19 @@ vector<int> generateRandom(int n)
 //inner product of two vectors
 double inner_product(XYZ a,XYZ b)
 {
-  return a.x*b.x+a.y+b.y+a.z*b.z;
+  return a.x*b.x+a.y*b.y+a.z*b.z;
 }
 //cross product of two vectors
 XYZ cross_product(XYZ a,XYZ b)
 {
-  return XYZ(a.y*b.z-a.z-b.y,a.z*b.x-a.x-b.z,a.x*b.y-a.y-b.x);
+  return XYZ(a.y*b.z-a.z*b.y,a.z*b.x-a.x*b.z,a.x*b.y-a.y*b.x);
 }
 //calculate angle between two vectors
 double angle_vectors(XYZ a,XYZ b)
 {
   return acos(inner_product(a,b)/(a.norm()*b.norm()));
 }
-double dihedral_vectors(XYZ a,XYZ b,XYZ c);
+double dihedral_vectors(XYZ a,XYZ b,XYZ c)
 {
     return atan2(inner_product(cross_product(a,b),cross_product(b,c))/(cross_product(a,b).norm()*cross_product(b,c).norm()),b.norm()*inner_product(a,cross_product(b,c))/(cross_product(a,b).norm()*cross_product(b,c).norm()));
 }

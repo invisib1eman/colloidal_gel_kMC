@@ -3,7 +3,7 @@
 void MC::Sweep()
 {
     Mnew=S.M;
-    
+    S.WriteDump(0);
     double accept=0.0;
    
     int nsample=S.nsweep/100;
@@ -23,7 +23,7 @@ void MC::Sweep()
         
         if(i%nsample==0)
         {
-            accept/=double(nsample);
+            
             LogProfile(i,accept);
             S.WriteMol2(i);
             S.WriteDump(i);
@@ -59,17 +59,38 @@ double MC::MoveMolecule()
 {
     
     double accept=0.0;//accept events
-    double deltae=0;//energy difference
+    
     //vector<int> sequence_M=generateRandom(S.NMOL);//randomly generate a sequence of the N molecules;
     for(int i=0; i<S.NMOL; i++)
     {
-        //int i=gsl_rng_uniform_int(S.gsl_r,S.NMOL);
-        int index=i;
+        int index=gsl_rng_uniform_int(S.gsl_r,S.NMOL);
+        
+        double delta=0;//energy difference
         //int index=sequence_M[i];//index of the current trial molecule
         Molecule newmolecule=S.M[index];
+        
         newmolecule.centre=RandomTranslate(S.M[index].centre,S.MCstep,gsl_rng_uniform(S.gsl_r),gsl_rng_uniform(S.gsl_r));
+        
+
         newmolecule.orientation=RandomRotate(S.M[index].orientation,S.MCstep,gsl_rng_uniform(S.gsl_r),gsl_rng_uniform(S.gsl_r),gsl_rng_uniform(S.gsl_r));
         newmolecule.UpdateVertices();
+        
+        if (newmolecule.nbonds>0)   //calculate hbond_energy
+        {
+            
+            for(int n=0; n<newmolecule.nbonds; n++)
+            {
+                delta+=E.hbonde(newmolecule,S.M[newmolecule.hbond_list[n].M2],n)-E.hbonde(S.M[index],S.M[newmolecule.hbond_list[n].M2],n);
+                //cout<<delta<<endl;
+            }
+        }
+        if(Glauber(delta,gsl_rng_uniform(S.gsl_r)))
+        {
+            //Accept move
+            S.M[index]=newmolecule;
+            cout<<"accept"<<endl;
+            accept+=1.0;
+            energy+=delta;
         //find new bonding possibility
         int new_hbond=-1;
         vector<hbond> new_hbondlist;
@@ -98,18 +119,6 @@ double MC::MoveMolecule()
                 }
             }
         }
-        //calculate hbond_energy
-        for(int n=0; n<newmolecule.nbonds; n++)
-        {
-            delta+=E.hbonde(newmolecule,S.M[newmolecule.hbond_list[n].M2],n)-E.hbonde(S.M[index],S.M[newmolecule.hbond_list[n].M2],n);
-        }
-        if(Glauber(delta,gsl_rng_uniform(S.gsl_r)))
-        {
-            //Accept move
-            S.M[index]=newmolecule;
-            accept+=1.0;
-            energy+=delta;
-        
         
             //form bonds if accept
             if (new_hbond!=-1)
@@ -122,6 +131,7 @@ double MC::MoveMolecule()
                     S.M[new_hbondlist[m].M2].hbond_list.push_back(hbond(new_hbondlist[m].M2,new_hbondlist[m].M1,new_hbondlist[m].arm2,new_hbondlist[m].arm1));
                     S.M[new_hbondlist[m].M2].vertype[new_hbondlist[m].arm2]='I';
                     S.M[new_hbondlist[m].M2].nbonds+=1;
+                    cout<<"form a hbond"<<endl;
                 }
             }
         }
@@ -142,14 +152,14 @@ bool MC::Glauber(double delta, double rand)
 double MC::TotalEnergy()
 {
     double totalenergy=0.0;
-    for(int i;i<S.NMOL;i++)
+    /*for(int i;i<S.NMOL;i++)
     {
-        for(int j=i+1;j<S.NMOL;j++)
+        for(int j=0;j<S.M[i].nbonds;j++)
         {
-            totalenergy+=E.hbonde(S.M[i],S.M[j]);
+            totalenergy+=E.hbonde(S.M[i],S.M[S.M[i].hbond_list[j].M2],j);
             //totalenergy+=E.LJ(S.M[i],S.M[j]);
         }
         
-    }
+    }*/
     return totalenergy;
 }

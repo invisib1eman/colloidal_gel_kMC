@@ -77,18 +77,20 @@ void System::WriteDump(int timestep)
     sprintf(FileName,"%s_Dump.lammpstrj",Description.c_str());
     ofstream out;
     out.open(FileName,ios::app);
-    /*out<<timestep<<endl;
+    
     out<<"ITEM: TIMESTEP"<<endl;
+    out<<timestep<<endl;
+    out<<"ITEM: NUMBER OF ATOMS"<<endl;
     int NT=NMOL*7;
     out<<NT<<endl;
-    out<<"ITEM: BOX BOUNDS"<<endl;
+    out<<"ITEM: BOX BOUNDS pp pp pp"<<endl;
     out<<-0.5*L<<"\t"<<0.5*L<<endl;
     out<<-0.5*L<<"\t"<<0.5*L<<endl;
     out<<-0.5*L<<"\t"<<0.5*L<<endl;
-    out<<"ITEM: ATOMS index type x y z"<<endl;*/
-    int NT=NMOL*7;
+    out<<"ITEM: ATOMS index type x y z"<<endl;
+    /*int NT=NMOL*7;
     out<<NT<<endl;
-    out<<"Time="<<timestep<<endl;
+    out<<"Time="<<timestep<<endl;*/
     XYZ im;
     XYZ im_centre;
     for(int i=0;i<NMOL;i++)

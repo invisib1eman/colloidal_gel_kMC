@@ -11,8 +11,8 @@ class Energy
 {
 public:
     double Kr=10.0;
-    double Kalpha=100.0;
-    double Kxhi=100.0;
+    double Kalpha=10.0;
+    double Kxhi=10.0;
     double r0=0.28;
     double alpha0=0.0;
     double beta0=0;
@@ -32,7 +32,7 @@ public:
         double alpha=angle_vectors((arm1-centre1),(arm2-arm1));
         double beta=angle_vectors((arm2-centre2),(arm1-arm2));
         double xhi=dihedral_vectors((centre1-neighborarm1),(centre2-centre1),(neighborarm2-centre2));
-        return 0.5*Kr*(r-r0)*(r-r0)+0.5*Kalpha*(alpha-alpha0)*(alpha-alpha0)+0.5*Kalpha*(beta-beta0)*(beta-beta0)+0.5*Kxhi*(xhi-xhi0)*(xhi-xhi0);
+        return 0.5*Kr*(r-r0)*(r-r0)+0.5*Kxhi*(xhi-xhi0)*(xhi-xhi0)+0.5*Kalpha*(alpha-alpha0)*(alpha-alpha0)+0.5*Kalpha*(beta-beta0)*(beta-beta0);
     }
 };
 #endif
