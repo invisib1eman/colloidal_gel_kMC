@@ -11,6 +11,10 @@ class System
 {
   public:
     vector<Molecule> M; //List of molecules
+    vector<Grid> G;
+    int NGRID,NGRID3;//NGRID=#cell in one direction, NGRID3=total # of cells of grid, NCELL=#particles per cell
+    double NCELL;
+    double GRIDL;//Grid length in one direction
     const gsl_rng_type * gsl_T;
     gsl_rng * gsl_r;
     string Description;
@@ -35,6 +39,7 @@ class System
     
         desc.add_options()
         ("help,h", "print usage message")
+        ("NGRID,G",value<int>(&NGRID)->default_value(3))
         ("NMOL,N", value<int>(&NMOL)->default_value(100), "#molecules (default 100)")
         ("box_length,L", value<double>(&L)->default_value(10.0), "length of box (default 10.0)")
         ("time,s", value<double>(&total_time)->default_value(100.0), "total time in tau_0 units (default 100.0)")
@@ -61,7 +66,9 @@ class System
         
         deltat=1.0/12.0*MCstep*MCstep;
         nsweep=int(ceil(total_time/deltat));
-        
+        NGRID3=NGRID*NGRID*NGRID;
+        GRIDL=L/NGRID;
+        NCELL=NMOL/NGRID3;
     }
     
     void Create();
