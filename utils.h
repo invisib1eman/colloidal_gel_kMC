@@ -16,5 +16,8 @@ double dihedral_vectors(XYZ a,XYZ b,XYZ c);
 quarternion RandomRotate(quarternion old, double step,double a,double b,double c);
 int getNum(vector<int>& v);
 vector<int> generateRandom(int n);
+int GridIndex_index(int i,int j,int k,int n);//return gridindex based on index of x, y, z (n is grids number in one direction)directions 
+int GridIndex_xyz(XYZ& p,int n,double dl);//return gridindex based on position p, dl is grid length
+void GridLoc(int& i,int& j,int& k,int n,int index);//update xyz index based on grid index
 
 #endif

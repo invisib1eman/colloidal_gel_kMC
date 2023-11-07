@@ -3,7 +3,23 @@
 void System::Create()
 {
     cout<<"Creating System"<<endl;
-    
+    int i,j,k,l,n;
+    //Allocate Grid
+    Grid g;
+    for(k=0; k<NGRID; k++)
+    {
+        for(j=0; j<NGRID; j++)
+        {
+          for(i=0; i<NGRID; i++)
+          {
+              g.cm.x=(double(i)+0.5)*lambda;
+              g.cm.y=(double(j)+0.5)*lambda;
+              g.cm.z=(double(k)+0.5)*lambda;
+              g.n=0;//We fill this later now
+              G.push_back(g);
+          }
+        }
+    }
     bool flag;
     
     

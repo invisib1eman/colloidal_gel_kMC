@@ -115,3 +115,33 @@ double dihedral_vectors(XYZ a,XYZ b,XYZ c)
 {
     return atan2(inner_product(cross_product(a,b),cross_product(b,c))/(cross_product(a,b).norm()*cross_product(b,c).norm()),b.norm()*inner_product(a,cross_product(b,c))/(cross_product(a,b).norm()*cross_product(b,c).norm()));
 }
+int GridIndex_index(int i,int j,int k,int n)
+{
+  if(i>n-1)
+    i-=n;
+  else if(i<0)
+    i+=n;
+  if(j>n-1)
+    j-=n;
+  else if(j<0)
+    j+=n;
+  if(k>n-1)
+    k-=n;
+  else if(k<0)
+    k+=n;
+  return n*n*k+n*j+i;
+}
+int GridIndex_xyz(XYZ& p,int n,double dl)
+{
+  int i=int(floor(p.x/dl));
+  int j=int(floor(p.y/dl));
+  int k=int(floor(p.z/dl));
+  return n*n*k+n*j+i;
+
+}
+void GridLoc(int& i,int& j,int& k,int n,int index)
+{
+  i=index%n;
+  j=((index-i)/n)%n;
+  k=(index-i-j*n)/(n*n);
+}

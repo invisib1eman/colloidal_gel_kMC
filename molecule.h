@@ -5,6 +5,7 @@
 #include "xyz.h"
 #include "quarternion.h"
 #include "hbond.h"
+#include "grid.h"
 class Molecule
 {
 public:

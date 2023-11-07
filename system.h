@@ -6,6 +6,7 @@
 #include "quarternion.h"
 #include "molecule.h"
 #include "utils.h"
+#include "grid.h"
 class System
 {
   public:
