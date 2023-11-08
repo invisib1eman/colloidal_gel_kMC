@@ -19,5 +19,5 @@ vector<int> generateRandom(int n);
 int GridIndex_index(int i,int j,int k,int n);//return gridindex based on index of x, y, z (n is grids number in one direction)directions 
 int GridIndex_xyz(XYZ& p,int n,double dl);//return gridindex based on position p, dl is grid length
 void GridLoc(int& i,int& j,int& k,int n,int index);//update xyz index based on grid index
-
+int neighborarm(int n);
 #endif

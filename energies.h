@@ -23,7 +23,7 @@ public:
         int armindex1=M1.hbond_list[n].arm1;
         XYZ arm1=M1.ver[armindex1];
         XYZ centre1=M1.centre;
-        XYZ neighborarm1=M1.ver[armindex1+1-2*(armindex1%2)];
+        XYZ neighborarm1=M1.ver[neighborarm(armindex1)];
         int armindex2=M1.hbond_list[n].arm2;
         XYZ arm2=M2.ver[armindex2];
         XYZ centre2=M2.centre;

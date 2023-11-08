@@ -145,3 +145,7 @@ void GridLoc(int& i,int& j,int& k,int n,int index)
   j=((index-i)/n)%n;
   k=(index-i-j*n)/(n*n);
 }
+int neighborarm(int n)
+{
+  return n+1-2*(n%2);
+}
