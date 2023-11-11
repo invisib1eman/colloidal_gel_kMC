@@ -11,6 +11,7 @@ class Molecule
 public:
     int MOL_ID;//molecule ID
     int N_VER; //Number of vertices
+    int gID;//grid id
     vector<XYZ> ver; //Coordinates of vertices
     vector<char> vertype;//type of vertices: A, B, C, D, I(inactive)
     vector<XYZ> aorigin;//original vertices
@@ -18,10 +19,11 @@ public:
     vector<hbond> hbond_list;//list of hbonded neighbors and information
     XYZ centre; //Coordinates of centre
     quarternion orientation;
-    Molecule() //HARD CODE BASED ON VERTEX INFORMATION,unit length=1nm
+    Molecule() //HARD CODE BASED ON VERTEX INFORMATION,unit length=1nm,arm length=1.1nm
     {
         N_VER=6;
         nbonds=0;
+        gID=0;
         centre.set(0.0,0.0,0.0);
         vertype.push_back('A');
         vertype.push_back('A');

@@ -1,7 +1,7 @@
 //NANOROD: utils.cpp Utilities Functions (Revision Date: Oct 27, 2023)
 #include "utils.h"
 //do not assume where the particle is (particle may have crossed the box twice or more)
-XYZ image(XYZ p, double L)
+XYZ image(XYZ p, double L)//note that every time we calculate vectors or distances we need to image XYZ
 {
   XYZ xyz;
   xyz.x=myfmod(p.x+0.5*L, L)-0.5*L;
@@ -35,6 +35,36 @@ double min_d2(XYZ a, XYZ b, double L)
     
     return d.norm2();
 }
+XYZ real_vector(XYZ origin,double L)//after image,get the real vectors
+{
+  XYZ real=origin;
+  if(origin.x>0.5*L)
+  {
+    real.x=origin.x-L;
+  }
+  if(origin.x<-0.5*L)
+  {
+    real.x=origin.x+L;
+  }
+  if(origin.y>0.5*L)
+  {
+    real.y=origin.y-L;
+  }
+  if(origin.y<-0.5*L)
+  {
+    real.y=origin.y+L;
+  }
+  if(origin.z>0.5*L)
+  {
+    real.z=origin.z-L;
+  }
+  if(origin.z<-0.5*L)
+  {
+    real.z=origin.z+L;
+  }
+  return real;
+}
+
 XYZ RandomTranslate(XYZ old, double step,double u,double v)
 {
     
@@ -113,7 +143,7 @@ double angle_vectors(XYZ a,XYZ b)
 }
 double dihedral_vectors(XYZ a,XYZ b,XYZ c)
 {
-    return atan2(inner_product(cross_product(a,b),cross_product(b,c))/(cross_product(a,b).norm()*cross_product(b,c).norm()),b.norm()*inner_product(a,cross_product(b,c))/(cross_product(a,b).norm()*cross_product(b,c).norm()));
+    return atan2(b.norm()*inner_product(a,cross_product(b,c))/(cross_product(a,b).norm()*cross_product(b,c).norm()),inner_product(cross_product(a,b),cross_product(b,c))/(cross_product(a,b).norm()*cross_product(b,c).norm()));
 }
 int GridIndex_index(int i,int j,int k,int n)
 {
@@ -131,11 +161,11 @@ int GridIndex_index(int i,int j,int k,int n)
     k+=n;
   return n*n*k+n*j+i;
 }
-int GridIndex_xyz(XYZ& p,int n,double dl)
+int GridIndex_xyz(XYZ& p,int n,double dl,double L)
 {
-  int i=int(floor(p.x/dl));
-  int j=int(floor(p.y/dl));
-  int k=int(floor(p.z/dl));
+  int i=int(floor((p.x+L/2)/dl));
+  int j=int(floor((p.y+L/2)/dl));
+  int k=int(floor((p.z+L/2)/dl));
   return n*n*k+n*j+i;
 
 }

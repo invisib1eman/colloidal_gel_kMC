@@ -6,6 +6,7 @@
 #include "molecule.h"
 #include "hbond.h"
 #include "energies.h"
+#include "grid.h"
 //#include "energies.h"
 class MC
 {
@@ -13,6 +14,7 @@ class MC
         System S;
         Energy E;
         double energy, time;
+        int nbr_g=27;//number of number grids
         //new vector for molecule
         vector<Molecule> Mnew;
         MC(){energy=0.0; time=0.0; }

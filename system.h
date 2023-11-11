@@ -39,11 +39,11 @@ class System
     
         desc.add_options()
         ("help,h", "print usage message")
-        ("NGRID,G",value<int>(&NGRID)->default_value(3))
+        ("NGRID,G",value<int>(&NGRID)->default_value(10),"grids(default 5)")
         ("NMOL,N", value<int>(&NMOL)->default_value(100), "#molecules (default 100)")
         ("box_length,L", value<double>(&L)->default_value(10.0), "length of box (default 10.0)")
         ("time,s", value<double>(&total_time)->default_value(100.0), "total time in tau_0 units (default 100.0)")
-        ("MCstep,m", value<double>(&MCstep)->default_value(0.10), "MC step size (default 0.1)")
+        ("MCstep,m", value<double>(&MCstep)->default_value(0.05), "MC step size (default 0.05)")
         ("GSL_SEED,g", value<int>(&GSL_SEED)->default_value(10), "seed for the RNG (default 10)")
         ("Description,D", value<string>(&Description)->default_value("nanorod"), "Description (default nanorod)");
 ;

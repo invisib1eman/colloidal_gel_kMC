@@ -15,26 +15,63 @@ void System::Create()
               g.cm.x=(double(i)+0.5)*GRIDL-0.5*L;
               g.cm.y=(double(j)+0.5)*GRIDL-0.5*L;
               g.cm.z=(double(k)+0.5)*GRIDL-0.5*L;
+              for (int inei=i-1;inei<i+2;inei++)
+              {
+                for (int jnei=j-1;jnei<j+2;jnei++)
+                {
+                    for (int knei=k-1;knei<k+2;knei++)
+                    {
+                        int indexn=GridIndex_index(inei,jnei,knei,NGRID);
+                        g.nbr.push_back(indexn);
+                        
+                    }
+                }
+              }
               g.n=0;//We fill this later now
               G.push_back(g);
+             
           }
         }
     }
-
+   
     //Fill particles Use random permutation
-    Molecule M;
-    int nlocal=int(floor(lambda/pow));
     bool flag;
     
     
     
     int count=0;
-  
+    /*Molecule m1;//initial test for 2 particles
+    m1.MOL_ID=0;
+    m1.centre=XYZ(0,0,0);
+    m1.gID=GridIndex_xyz(m1.centre,NGRID,GRIDL,L);
+    G[m1.gID].n+=1;
+    G[m1.gID].plist.push_back(m1.MOL_ID);
+    m1.UpdateVertices();
+    m1.nbonds=1;
+    m1.hbond_list.push_back(hbond(0,1,0,4));
+    m1.vertype[0]='I';
+    M.push_back(m1);
+    Molecule m2;
+    m2.MOL_ID=1;
+    m2.centre=XYZ(2.26,0,1.06);
+    m2.gID=GridIndex_xyz(m2.centre,NGRID,GRIDL,L);
+    G[m2.gID].n+=1;
+    G[m2.gID].plist.push_back(m2.MOL_ID);
+    m2.orientation=angle_to_quarternion(M_PI/3,1,0);
+    m2.UpdateVertices();
+    m2.nbonds=1;
+    m2.hbond_list.push_back(hbond(1,0,4,0));
+    m2.vertype[4]='I';
+    M.push_back(m2);
+    NMOL=2;*/
     for(int i=0; i<NMOL; i++)
     {
         Molecule m;
-        m.MOL_ID=i+1;
+        m.MOL_ID=i;
         m.centre=XYZ(gsl_rng_uniform(gsl_r)*L-0.5*L,gsl_rng_uniform(gsl_r)*L-0.5*L,gsl_rng_uniform(gsl_r)*L-0.5*L);
+        m.gID=GridIndex_xyz(m.centre,NGRID,GRIDL,L);
+        G[m.gID].n+=1;
+        G[m.gID].plist.push_back(m.MOL_ID);
         m.orientation=RandomRotate(angle_to_quarternion(0,0,0), 1,gsl_rng_uniform(gsl_r),gsl_rng_uniform(gsl_r),gsl_rng_uniform(gsl_r));
         m.UpdateVertices();
         M.push_back(m);
