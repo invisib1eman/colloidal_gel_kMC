@@ -82,7 +82,22 @@ double MC::MoveMolecule()
         double delta=0;//energy difference
         //int index=sequence_M[i];//index of the current trial molecule
         Molecule newmolecule=S.M[index];
-        
+        //Check the molecule bonds and see if the bonds will break, the probability of breaking a bond is given by Arrhenius formula
+        vector<hbond> old_hbondlist=S.M[index].hbond_list;
+        for(int n=0;n<old_hbondlist.size();n++)
+        {
+            hbond old_hbond=old_hbondlist[n];
+            //calculate bond_dissociation energy
+            double E_dis;
+            E_dis+=S.E_1;//the basic enthalpy change of one bond
+            //count # of freed bonds
+            //find neighbor arms,first the one of M1, then the one of M2
+            
+            
+            
+
+            
+        }
         newmolecule.centre=RandomTranslate(S.M[index].centre,S.MCstep,gsl_rng_uniform(S.gsl_r),gsl_rng_uniform(S.gsl_r));
         XYZ image_center=image(newmolecule.centre,S.L);
         int new_gID=GridIndex_xyz(image_center,S.NGRID,S.GRIDL,S.L);
@@ -128,11 +143,18 @@ double MC::MoveMolecule()
                                 double r2_arms=min_d2(newmolecule.ver[k],S.M[j].ver[l],S.L);
                                 if (r2_arms<S.maxl2_bond&&newmolecule.vertype[k]=='A'&&S.M[j].vertype[l]=='A')
                                 {
-                                    vector<hbond> old_hbondlist=S.M[index].hbond_list;
-                                    bool bonded=false;
+                                    
+                                    bool bonded=false;//check if there is already bonds between the two molecules, only one bond can exist between two molecules
                                     for(int n=0;n<old_hbondlist.size();n++)
                                     {
                                         if(old_hbondlist[n].M2==j)
+                                        {
+                                            bonded=true;
+                                        }
+                                    }
+                                    for(int n=0;n<new_hbondlist.size();n++)
+                                    {
+                                        if(new_hbondlist[n].M2==j)
                                         {
                                             bonded=true;
                                         }
