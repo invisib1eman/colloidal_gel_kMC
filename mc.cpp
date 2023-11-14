@@ -89,12 +89,30 @@ double MC::MoveMolecule()
             hbond old_hbond=old_hbondlist[n];
             //calculate bond_dissociation energy
             double E_dis;
+            int free_bonds=0;
             E_dis+=S.E_1;//the basic enthalpy change of one bond
             //count # of freed bonds
             //find neighbor arms,first the one of M1, then the one of M2
-            
-            
-            
+            int neighborarm1=neighborarm(old_hbond.arm1);
+            free_bonds+=2;
+            for(int p=0;p<old_hbondlist.size();p++)
+            {
+                if(old_hbondlist[p].arm1==neighborarm1)
+                {
+                    free_bonds-=2;
+                }
+            } 
+            int neighborarm2=neighborarm(old_hbond.arm2);
+            free_bonds+=2;
+            vector<hbond> bonded_neighbor_hbondlist=S.M[old_hbond.M2].hbond_list;
+            for(int p=0;p<bonded_neighbor_hbondlist.size();p++)
+            {
+                if(bonded_neighbor_hbondlist[p].arm1==neighborarm2)
+                {
+                    free_bonds-=2;
+                }
+            }                 
+            E_dis+=free_bonds*S.free_bond_freeenergy;
 
             
         }
@@ -244,6 +262,16 @@ bool MC::Glauber(double delta, double rand)
         else
             return false;
     }
+    
+}
+bool MC::Arrhenius(double delta, double rand)
+{
+    
+    if(1.0/(exp(delta)+1.0)>rand)
+        return true;
+    else
+        return false;
+    
     
 }
 

@@ -31,11 +31,23 @@ class System
     double deltat; //Timestep
     double MCstep; //Step size of translation
     double E_1;
+    double free_bond_freeenergy;
     void ReadInput(int argc, char *argv[])
     {
         double total_time;
-        Isabella Graf lue("nanorod"), "Description (default nanorod)");
-;
+        
+        options_description desc("Usage:\nNANOROD <options>");
+    
+        desc.add_options()
+        ("help,h", "print usage message")
+        ("NGRID,G",value<int>(&NGRID)->default_value(10),"grids(default 10)")
+        ("NMOL,N", value<int>(&NMOL)->default_value(400), "#molecules (default 400)")
+        ("box_length,L", value<double>(&L)->default_value(20.0), "length of box (default 20.0)")
+        ("time,s", value<double>(&total_time)->default_value(100.0), "total time in tau_0 units (default 100.0)")
+        ("MCstep,m", value<double>(&MCstep)->default_value(0.05), "MC step size (default 0.05)")
+        ("GSL_SEED,g", value<int>(&GSL_SEED)->default_value(10), "seed for the RNG (default 10)")
+        ("Description,D", value<string>(&Description)->default_value("nanorod"), "Description (default nanorod)");
+
         
         variables_map vm;
         store(parse_command_line(argc, argv, desc), vm);
@@ -57,6 +69,11 @@ class System
         nsweep=int(ceil(total_time/deltat));
         NGRID3=NGRID*NGRID*NGRID;
         GRIDL=L/NGRID;
+        if(GRIDL<cm_L/2)
+        {
+            cout<<"Error: Grid size too small"<<endl;
+            exit(1);
+        }
         NCELL=NMOL/NGRID3;
     }
     

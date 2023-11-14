@@ -23,6 +23,7 @@ class MC
         void Sweep();
         double MoveMolecule();
         bool Glauber(double, double);
+        bool MC::Arrhenius(double delta, double rand);
         double TotalEnergy();
 };
 #endif
