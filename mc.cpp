@@ -105,14 +105,25 @@ double MC::MoveMolecule()
             int neighborarm2=neighborarm(old_hbond.arm2);
             free_bonds+=2;
             vector<hbond> bonded_neighbor_hbondlist=S.M[old_hbond.M2].hbond_list;
+            int bonded_index;
             for(int p=0;p<bonded_neighbor_hbondlist.size();p++)
             {
                 if(bonded_neighbor_hbondlist[p].arm1==neighborarm2)
                 {
                     free_bonds-=2;
                 }
+                if(bonded_neighbor_hbondlist[p].arm1==old_hbond.arm2)
+                {
+                    bonded_index=p;
+                }
             }                 
             E_dis+=free_bonds*S.free_bond_freeenergy;
+            if (Arrhenius(S.A,E_dis,gsl_rng_uniform(S.gsl_r)))
+            {
+                //break bond
+                S.M[index].hbond_list.erase(S.M[index].hbond_list.begin()+n);
+                S.M[old_hbond.M2].hbond_list.erase(S.M[old_hbond.M2].hbond_list.begin()+bonded_index);
+            }
 
             
         }
@@ -264,10 +275,10 @@ bool MC::Glauber(double delta, double rand)
     }
     
 }
-bool MC::Arrhenius(double delta, double rand)
+bool MC::Arrhenius(double A,double delta, double rand)
 {
     
-    if(1.0/(exp(delta)+1.0)>rand)
+    if(A*(exp(delta))>rand)
         return true;
     else
         return false;
