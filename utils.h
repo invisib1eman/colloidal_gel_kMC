@@ -22,4 +22,5 @@ void GridLoc(int& i,int& j,int& k,int n,int index);//update xyz index based on g
 int neighborarm(int n);
 quarternion Rotate(quarternion old,double a,double b,double c);
 XYZ real_vector(XYZ origin,double L);
+
 #endif

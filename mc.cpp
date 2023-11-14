@@ -81,9 +81,10 @@ double MC::MoveMolecule()
         
         double delta=0;//energy difference
         //int index=sequence_M[i];//index of the current trial molecule
-        Molecule newmolecule=S.M[index];
+        
         //Check the molecule bonds and see if the bonds will break, the probability of breaking a bond is given by Arrhenius formula
         vector<hbond> old_hbondlist=S.M[index].hbond_list;
+        /*vector<hbond_index> erase_bondlist;
         for(int n=0;n<old_hbondlist.size();n++)
         {
             hbond old_hbond=old_hbondlist[n];
@@ -118,25 +119,38 @@ double MC::MoveMolecule()
                 }
             }                 
             E_dis+=free_bonds*S.free_bond_freeenergy;
+            
             if (Arrhenius(S.A,E_dis,gsl_rng_uniform(S.gsl_r)))
             {
-                //break bond
-                S.M[index].hbond_list.erase(S.M[index].hbond_list.begin()+n);
-                S.M[old_hbond.M2].hbond_list.erase(S.M[old_hbond.M2].hbond_list.begin()+bonded_index);
+                erase_bondlist.push_back(hbond_index(old_hbond.M1,n));
+                erase_bondlist.push_back(hbond_index(old_hbond.M2,bonded_index));
+                cout<<"success1"<<endl;
+                
             }
-
+            
             
         }
+        for(int q=0;q<erase_bondlist.size();q++)
+        {
+            //break bond
+            S.M[erase_bondlist[q].molid].vertype[S.M[erase_bondlist[q].molid].hbond_list[erase_bondlist[q].hbondindex].M1]='A';
+            S.M[erase_bondlist[q].molid].hbond_list[erase_bondlist[q].hbondindex]=S.M[erase_bondlist[q].molid].hbond_list.back();
+            S.M[erase_bondlist[q].molid].nbonds-=1;
+            S.M[erase_bondlist[q].molid].hbond_list.pop_back();
+        }
+        old_hbondlist=S.M[index].hbond_list;*/
+        Molecule newmolecule=S.M[index];
         newmolecule.centre=RandomTranslate(S.M[index].centre,S.MCstep,gsl_rng_uniform(S.gsl_r),gsl_rng_uniform(S.gsl_r));
         XYZ image_center=image(newmolecule.centre,S.L);
         int new_gID=GridIndex_xyz(image_center,S.NGRID,S.GRIDL,S.L);
         newmolecule.gID=new_gID;
-
+        
         newmolecule.orientation=RandomRotate(S.M[index].orientation,S.MCstep,gsl_rng_uniform(S.gsl_r),gsl_rng_uniform(S.gsl_r),gsl_rng_uniform(S.gsl_r));
         newmolecule.UpdateVertices();
         int new_hbond=-1;
         vector<hbond> new_hbondlist;
         double r2_newbond=S.L*S.L;
+        
         if (newmolecule.nbonds>0)   //calculate hbond_energy
         {
             
