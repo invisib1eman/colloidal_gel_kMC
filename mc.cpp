@@ -84,7 +84,7 @@ double MC::MoveMolecule()
         
         //Check the molecule bonds and see if the bonds will break, the probability of breaking a bond is given by Arrhenius formula
         vector<hbond> old_hbondlist=S.M[index].hbond_list;
-        /*vector<hbond_index> erase_bondlist;
+        vector<hbond_index> erase_bondlist;
         for(int n=0;n<old_hbondlist.size();n++)
         {
             hbond old_hbond=old_hbondlist[n];
@@ -138,7 +138,7 @@ double MC::MoveMolecule()
             S.M[erase_bondlist[q].molid].nbonds-=1;
             S.M[erase_bondlist[q].molid].hbond_list.pop_back();
         }
-        old_hbondlist=S.M[index].hbond_list;*/
+        old_hbondlist=S.M[index].hbond_list;
         Molecule newmolecule=S.M[index];
         newmolecule.centre=RandomTranslate(S.M[index].centre,S.MCstep,gsl_rng_uniform(S.gsl_r),gsl_rng_uniform(S.gsl_r));
         XYZ image_center=image(newmolecule.centre,S.L);
@@ -292,8 +292,9 @@ bool MC::Glauber(double delta, double rand)
 bool MC::Arrhenius(double A,double delta, double rand)
 {
     
-    if(A*(exp(delta))>rand)
-        return true;
+    if(A*(exp(-delta))>rand)
+        {cout<<A*(exp(delta))<<endl;
+        return true;}
     else
         return false;
     

@@ -10,17 +10,17 @@
 class Energy
 {
 public:
-    double Kr=10.0;
+    double Kr=5.0;
     double Kalpha=300.0;
     double Kxhi=50.0;
     double r0=0.28;
-    double fene_R0=0.38;//max_bond_extension
+    double fene_R0=0.58;//max_bond_extension
     double alpha0=0.0;
     double beta0=0;
     double xhi0=0.0;
     double L;//box size
     double sigma=2.2;//minimum 2^(1/6)sigma=2*armlength+bondlength
-    double epsilon=10;//LJ strength
+    double epsilon=20;//LJ strength
     double hbonde(Molecule M1,Molecule M2,int n)
     {
         int armindex1=M1.hbond_list[n].arm1;

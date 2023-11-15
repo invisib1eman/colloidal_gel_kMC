@@ -30,9 +30,9 @@ class System
     int nsweep; //Number of MC sweeps
     double deltat; //Timestep
     double MCstep; //Step size of translation
-    double E_1=5;//hbond dis enthalpy
+    double E_1=6;//hbond dis enthalpy
     double free_bond_freeenergy=-1;//free bond entropy
-    double A=0.1;//arrhenius prefactor
+    double A=0.5;//arrhenius prefactor
     void ReadInput(int argc, char *argv[])
     {
         double total_time;
