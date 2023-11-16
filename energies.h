@@ -78,13 +78,13 @@ public:
         if(nr2<nr2cut)//2^(1/6)=1.12
         {
             
-            return 4*epsilon*(1/(nr6*nr6)-(1/nr6));
+            return 4*epsilon*(1/(nr6*nr6)-(1/nr6))-4*epsilon*(1/(nr6cut*nr6cut)-(1/nr6cut));
         }
         else
         {
             
             
-            return 4*epsilon*(1/(nr6cut*nr6cut)-(1/nr6cut));
+            return 0;
         }
     };
 };
