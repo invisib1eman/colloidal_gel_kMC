@@ -12,6 +12,8 @@ void System::Create()
         {
           for(i=0; i<NGRID; i++)
           {
+              g.nbr.clear();
+              g.plist.clear();
               g.cm.x=(double(i)+0.5)*GRIDL-0.5*L;
               g.cm.y=(double(j)+0.5)*GRIDL-0.5*L;
               g.cm.z=(double(k)+0.5)*GRIDL-0.5*L;
