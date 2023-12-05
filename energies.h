@@ -11,7 +11,7 @@ class Energy
 {
 public:
     double Kr=5.0;
-    double Kalpha=300.0;
+    double Kalpha=50.0;
     double Kxhi=50.0;
     double r0=0.28;
     double fene_R0=0.58;//max_bond_extension

@@ -28,6 +28,7 @@ void MC::Sweep()
             LogProfile(i,accept);
             S.WriteMol2(i);
             S.WriteDump(i);
+            S.WriteBond(i);
             accept=0.0;
         }
     }
@@ -51,20 +52,10 @@ void MC::LogProfile(int i, double accept)
     ofstream out;
     out.open("_MC.log", ios::app);
     out<<setw(12)<<i<<"\t"<<setw(12)<<time<<"\t"<<setw(12)<<energy<<"\t"<<setw(8)<<accept<<endl;
-    out<<"bondlist"<<endl;
-    for(int j=0;j<S.NMOL;j++)
-    {
-        if(S.M[j].hbond_list.size()>0)
-        {
-            for(int k=0;k<S.M[j].hbond_list.size();k++)
-            {
-                out<<setw(12)<<S.M[j].hbond_list[k].M1<<setw(12)<<S.M[j].hbond_list[k].M2<<setw(12)<<S.M[j].hbond_list[k].arm1<<setw(12)<<S.M[j].hbond_list[k].arm2<<endl;
-            }
-        }
-        
-    }
+    
     out.close();
 }
+
 
 
 //Returns acceptance fraction
@@ -73,7 +64,7 @@ double MC::MoveMolecule()
     
     double accept=0.0;//accept events
     list<int>::iterator it;
-    
+    int N_break;
     //vector<int> sequence_M=generateRandom(S.NMOL);//randomly generate a sequence of the N molecules;
     for(int i=0; i<S.NMOL; i++)
     {

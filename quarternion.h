@@ -18,7 +18,7 @@ class quarternion
         quarternion operator * (double s){return quarternion(w*s,x*s,y*s,z*s);}
         quarternion operator / (double s){return quarternion(w/s,x/s,y/s,z/s);}
         void normalize()
-        {double norm=w*w+x*x+y*y+z*z;
+        {double norm=sqrt(w*w+x*x+y*y+z*z);
          w=w/norm;
          x=x/norm;
          y=y/norm;

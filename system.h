@@ -32,7 +32,7 @@ class System
     double MCstep; //Step size of translation
     double E_1=6;//hbond dis enthalpy
     double free_bond_freeenergy=-1;//free bond entropy
-    double A=0.5;//arrhenius prefactor
+    double A=5;//arrhenius prefactor
     void ReadInput(int argc, char *argv[])
     {
         double total_time;
@@ -81,5 +81,6 @@ class System
     void Create();
     void WriteMol2(int timestep);
     void WriteDump(int timestep);
+    void WriteBond(int timestep);
 };
 #endif

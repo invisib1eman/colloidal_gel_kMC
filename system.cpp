@@ -164,3 +164,24 @@ void System::WriteDump(int timestep)
     }
     out.close();
 }
+void System::WriteBond(int timestep)
+{
+    ofstream out;
+    out.open("Bondlist.txt",ios::app);
+    out<<"TIMESTEP"<<endl;
+    out<<timestep<<endl;
+    out<<setw(12)<<"molecule1"<<"\t"<<setw(12)<<"molecule2"<<"\t"<<setw(12)<<"arm1"<<"\t"<<setw(8)<<"arm2"<<endl;
+    for(int j=0;j<NMOL;j++)
+    {
+        if(M[j].hbond_list.size()>0)
+        {
+            for(int k=0;k<M[j].hbond_list.size();k++)
+            {
+                out<<setw(12)<<M[j].hbond_list[k].M1<<setw(12)<<M[j].hbond_list[k].M2<<setw(12)<<M[j].hbond_list[k].arm1<<setw(12)<<M[j].hbond_list[k].arm2<<endl;
+            }
+        }
+        
+    }
+    out.close();
+}
+
