@@ -2,6 +2,7 @@
 #include "system.h"
 void System::Create()
 {
+    
     cout<<"Creating System"<<endl;
     int i,j,k,l,n;
     //Allocate Grid
@@ -12,6 +13,7 @@ void System::Create()
         {
           for(i=0; i<NGRID; i++)
           {
+              g.g_index=GridIndex_index(i,j,k,NGRID);
               g.nbr.clear();
               g.plist.clear();
               g.cm.x=(double(i)+0.5)*GRIDL-0.5*L;
@@ -124,7 +126,21 @@ void System::WriteMol2(int timestep)
             out<<setw(8)<<++count<<"\t"<<setw(8)<<(n_ver+1)*i+1<<"\t"<<setw(8)<<(n_ver+1)*i+j+2<<"\t"<<setw(2)<<"1"<<endl;
         }
     }
-
+    for(int j=0;j<NMOL;j++)
+    {
+        if(M[j].hbond_list.size()>0)
+        {
+            for(int k=0;k<M[j].hbond_list.size();k++)
+            {
+                if(M[j].hbond_list[k].M2>j)
+                {
+                    out<<setw(8)<<++count<<"\t"<<setw(8)<<(n_ver+1)*j+k+2<<"\t"<<setw(8)<<(n_ver+1)*M[j].hbond_list[k].M2+M[j].hbond_list[k].arm2+2<<"\t"<<setw(2)<<"2"<<endl;
+                }
+                
+            }
+        }
+        
+    }
 
     out.close();
     //   cout<<"Mol2 input written in\t"<<FileName<<endl;
@@ -184,4 +200,78 @@ void System::WriteBond(int timestep)
     }
     out.close();
 }
+void System::WriteOrientation(int timestep)
+{
+    ofstream out;
+    out.open("Orientation.txt",ios::app);
+    out<<"TIMESTEP"<<endl;
+    out<<timestep<<endl;
+    out<<setw(12)<<"molecule1"<<"\t"<<setw(12)<<"molecule2"<<"\t"<<setw(12)<<"arm1"<<"\t"<<setw(8)<<"arm2"<<endl;
+    for(int j=0;j<NMOL;j++)
+    {
+        
+        out<<setw(12)<<M[j].orientation.w<<setw(12)<<M[j].orientation.x<<setw(12)<<M[j].orientation.y<<setw(12)<<M[j].orientation.z<<endl;
+            
+        
+    
+    }
+    out.close();
+
+}
+void System::WriteGrid(int timestep)
+{
+    ofstream out;
+    out.open("Grid.txt",ios::app);
+    out<<"TIMESTEP"<<endl;
+    out<<timestep<<endl;
+    for(int i=0;i<NGRID3;i++)
+    {
+     out<<setw(12)<<G[i].g_index<<setw(12)<<G[i].cm.x<<setw(12)<<G[i].cm.y<<setw(12)<<G[i].cm.z<<setw(12)<<G[i].n<<setw(8)<<endl;
+              out<<"neighborlist"<<endl;
+              for(int l=0;l<G[i].nbr.size();l++)
+              {
+                out<<G[i].nbr[l]<<endl;
+              }
+              
+    }
+    out.close();
+}
+void System::UpdateGrid()
+{
+    
+    int i,j,k,l,n;
+    //Allocate Grid
+    int g_index;
+    for(k=0; k<NGRID; k++)
+    {
+        for(j=0; j<NGRID; j++)
+        {
+          for(i=0; i<NGRID; i++)
+          {
+              
+              g_index=GridIndex_index(i,j,k,NGRID);
+              
+             
+              G[g_index].cm.x=(double(i)+0.5)*GRIDL-0.5*L;
+              G[g_index].cm.y=(double(j)+0.5)*GRIDL-0.5*L;
+              G[g_index].cm.z=(double(k)+0.5)*GRIDL-0.5*L;
+              for (int inei=0;inei<3;inei++)
+              {
+                for (int jnei=0;jnei<3;jnei++)
+                {
+                    for (int knei=0;knei<3;knei++)
+                    {
+                        int indexn=GridIndex_index(inei+i-1,jnei+j-1,knei+k-1,NGRID);
+                        G[g_index].nbr[inei*9+jnei*3+knei]=indexn;
+                        
+                    }
+                }
+              }
+              
+             
+          }
+        }
+    }
+}
+
 

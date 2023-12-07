@@ -30,9 +30,9 @@ class System
     int nsweep; //Number of MC sweeps
     double deltat; //Timestep
     double MCstep; //Step size of translation
-    double E_1=6;//hbond dis enthalpy
+    double E_1=10;//hbond dis enthalpy
     double free_bond_freeenergy=-1;//free bond entropy
-    double A=5;//arrhenius prefactor
+    double A=0.001;//arrhenius prefactor
     void ReadInput(int argc, char *argv[])
     {
         double total_time;
@@ -69,8 +69,18 @@ class System
         deltat=1.0/12.0*MCstep*MCstep;
         nsweep=int(ceil(total_time/deltat));
         NGRID3=NGRID*NGRID*NGRID;
+        
+    try
+    {
+      G.reserve(NGRID3);
+    }
+    catch (int e)
+    {
+	cout<<"Memory issues in cell list allocation.. exiting"<<endl;
+	exit(1);
+    }
         GRIDL=L/NGRID;
-        if(GRIDL<cm_L/2)
+        if(GRIDL<cm_L*0.5)
         {
             cout<<"Error: Grid size too small"<<endl;
             exit(1);
@@ -82,5 +92,8 @@ class System
     void WriteMol2(int timestep);
     void WriteDump(int timestep);
     void WriteBond(int timestep);
+    void WriteOrientation(int timestep);
+    void WriteGrid(int timestep);
+    void UpdateGrid();
 };
 #endif

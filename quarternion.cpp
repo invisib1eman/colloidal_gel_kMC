@@ -1,10 +1,10 @@
 #include "quarternion.h"
 quarternion angle_to_quarternion(double theta,double alpha,double beta)
 {
-  double w=cos(theta/2);
-  double x=sin(theta/2)*sin(alpha)*cos(beta);
-  double y=sin(theta/2)*sin(alpha)*sin(beta);
-  double z=sin(theta/2)*cos(alpha);
+  double w=cos(theta*0.5);
+  double x=sin(theta*0.5)*sin(alpha)*cos(beta);
+  double y=sin(theta*0.5)*sin(alpha)*sin(beta);
+  double z=sin(theta*0.5)*cos(alpha);
   return quarternion(w,x,y,z);
 }
 quarternion quartermulti(quarternion a,quarternion b)

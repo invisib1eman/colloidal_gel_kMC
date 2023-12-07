@@ -7,6 +7,7 @@ class Grid
 {
 public:
     XYZ cm;
+    int g_index;
     int n;//Number of particles
     list<int> plist; 
     vector<int> nbr; //List of neighboring cells including itself: NOT IMPLEMENTED IN GRID BUT IN CELLLIST

@@ -12,7 +12,7 @@ void MC::Sweep()
       nsample=1;
     
     energy=TotalEnergy();
-    cout<<"Initial Energy="<<energy<<endl;
+   
     
     WriteTemplate();
 	LogProfile(0,accept);
@@ -29,12 +29,12 @@ void MC::Sweep()
             S.WriteMol2(i);
             S.WriteDump(i);
             S.WriteBond(i);
+            S.WriteGrid(i);
             accept=0.0;
         }
     }
 	
-   cout<<"Final Energy="<<energy<<endl;
-   cout<<"Final Energy by recalculation="<<TotalEnergy()<<endl;
+   
    S.WriteMol2(S.nsweep);
    S.WriteDump(S.nsweep);
 }
@@ -61,26 +61,59 @@ void MC::LogProfile(int i, double accept)
 //Returns acceptance fraction
 double MC::MoveMolecule()
 {
-    
+    //S.UpdateGrid();
+    //check if the total particle in the celllists add to N
+    int total_particles=0;
+
+    for(int i=0;i<S.NGRID3;i++)
+    {
+        /*if(S.G[i].nbr.size()!=nbr_g)
+        {
+            cout<<"Neighbor Number wrong"<<endl;
+            exit(0);
+        }*/
+        if(S.G[i].n!=S.G[i].plist.size())
+        {
+            cout<<"Number wrong"<<endl;
+            exit(0);
+        }
+        total_particles+=S.G[i].n;
+    }
+    if(total_particles!=S.NMOL)
+    {
+            cout<<"Total number wrong"<<endl;
+            exit(0);
+    }
+    ofstream out;
+    out.open("events.txt",ios::app);
+    ofstream out2;
+    out2.open("Error.txt",ios::app);
+    //ofstream out2;
+    //out2.open("bond_energy.txt",ios::app);
     double accept=0.0;//accept events
     list<int>::iterator it;
     int N_break;
+    int index;
+    double delta;
     //vector<int> sequence_M=generateRandom(S.NMOL);//randomly generate a sequence of the N molecules;
     for(int i=0; i<S.NMOL; i++)
     {
-        int index=gsl_rng_uniform_int(S.gsl_r,S.NMOL);
+        index=gsl_rng_uniform_int(S.gsl_r,S.NMOL);
         
-        double delta=0;//energy difference
+        delta=0;//energy difference
         //int index=sequence_M[i];//index of the current trial molecule
         
         //Check the molecule bonds and see if the bonds will break, the probability of breaking a bond is given by Arrhenius formula
+        
         vector<hbond> old_hbondlist=S.M[index].hbond_list;
+       
         vector<hbond_index> erase_bondlist;
+        erase_bondlist.clear();
         for(int n=0;n<old_hbondlist.size();n++)
         {
             hbond old_hbond=old_hbondlist[n];
             //calculate bond_dissociation energy
-            double E_dis;
+            double E_dis=0;
             int free_bonds=0;
             E_dis+=S.E_1;//the basic enthalpy change of one bond
             //count # of freed bonds
@@ -115,7 +148,7 @@ double MC::MoveMolecule()
             {
                 erase_bondlist.push_back(hbond_index(old_hbond.M1,n));
                 erase_bondlist.push_back(hbond_index(old_hbond.M2,bonded_index));
-                cout<<"success1"<<endl;
+                
                 
             }
             
@@ -124,11 +157,15 @@ double MC::MoveMolecule()
         for(int q=0;q<erase_bondlist.size();q++)
         {
             //break bond
-            S.M[erase_bondlist[q].molid].vertype[S.M[erase_bondlist[q].molid].hbond_list[erase_bondlist[q].hbondindex].M1]='A';
+            S.M[erase_bondlist[q].molid].vertype[S.M[erase_bondlist[q].molid].hbond_list[erase_bondlist[q].hbondindex].arm1]='A';
+            out<<"Break bond"<<setw(12)<<S.M[erase_bondlist[q].molid].hbond_list[erase_bondlist[q].hbondindex].M1<<setw(12)<<S.M[erase_bondlist[q].molid].hbond_list[erase_bondlist[q].hbondindex].M2<<setw(12)<<S.M[erase_bondlist[q].molid].hbond_list[erase_bondlist[q].hbondindex].arm1<<setw(12)<<S.M[erase_bondlist[q].molid].hbond_list[erase_bondlist[q].hbondindex].arm2<<endl;
             S.M[erase_bondlist[q].molid].hbond_list[erase_bondlist[q].hbondindex]=S.M[erase_bondlist[q].molid].hbond_list.back();
             S.M[erase_bondlist[q].molid].nbonds-=1;
+            
             S.M[erase_bondlist[q].molid].hbond_list.pop_back();
         }
+        
+       
         old_hbondlist=S.M[index].hbond_list;
         Molecule newmolecule=S.M[index];
         newmolecule.centre=RandomTranslate(S.M[index].centre,S.MCstep,gsl_rng_uniform(S.gsl_r),gsl_rng_uniform(S.gsl_r));
@@ -138,6 +175,7 @@ double MC::MoveMolecule()
         
         newmolecule.orientation=RandomRotate(S.M[index].orientation,S.MCstep,gsl_rng_uniform(S.gsl_r),gsl_rng_uniform(S.gsl_r),gsl_rng_uniform(S.gsl_r));
         newmolecule.UpdateVertices();
+  
         int new_hbond=-1;
         vector<hbond> new_hbondlist;
         double r2_newbond=S.L*S.L;
@@ -158,6 +196,16 @@ double MC::MoveMolecule()
         {
             //ID of new neighboring grids
             int temp_gID=S.G[new_gID].nbr[l];
+            if(temp_gID>=S.NGRID3)
+            {
+                cout<<new_gID<<"Error: wrong grid id"<<endl;
+                cout<<temp_gID<<endl;
+                exit(0);
+            }
+            if(S.G[temp_gID].plist.empty())
+            {
+                continue;
+            }
             for(it=S.G[temp_gID].plist.begin();it!=S.G[temp_gID].plist.end();it++)
             {
                 int j=*it;
@@ -214,6 +262,10 @@ double MC::MoveMolecule()
         {
             //ID of new neighboring grids
             int temp_gID=S.G[old_gID].nbr[l];
+            if(S.G[temp_gID].plist.empty())
+            {
+                continue;
+            }
             for(it=S.G[temp_gID].plist.begin();it!=S.G[temp_gID].plist.end();it++)
             {
                 int j=*it;
@@ -232,7 +284,7 @@ double MC::MoveMolecule()
         {
             //Accept move
             S.M[index]=newmolecule;
-            cout<<"accept"<<endl;
+    
             accept+=1.0;
             energy+=delta;
 
@@ -241,7 +293,7 @@ double MC::MoveMolecule()
             {
                 S.G[old_gID].n-=1;
                 S.G[old_gID].plist.remove(S.M[index].MOL_ID);
-                cout<<index<<S.M[index].MOL_ID;
+                
                 S.G[new_gID].n+=1;
                 S.G[new_gID].plist.push_back(S.M[index].MOL_ID);
             }
@@ -257,7 +309,7 @@ double MC::MoveMolecule()
                     S.M[new_hbondlist[m].M2].hbond_list.push_back(hbond(new_hbondlist[m].M2,new_hbondlist[m].M1,new_hbondlist[m].arm2,new_hbondlist[m].arm1));
                     S.M[new_hbondlist[m].M2].vertype[new_hbondlist[m].arm2]='I';
                     S.M[new_hbondlist[m].M2].nbonds+=1;
-                    cout<<"form a hbond"<<endl;
+                    out<<"form a hbond"<<setw(12)<<new_hbondlist[m].M1<<setw(12)<<new_hbondlist[m].M2<<setw(12)<<new_hbondlist[m].arm1<<setw(12)<<new_hbondlist[m].arm2<<endl;
                 }
             }
         }
@@ -284,7 +336,7 @@ bool MC::Arrhenius(double A,double delta, double rand)
 {
     
     if(A*(exp(-delta))>rand)
-        {cout<<A*(exp(delta))<<endl;
+        {
         return true;}
     else
         return false;

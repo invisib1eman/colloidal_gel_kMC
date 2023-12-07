@@ -163,9 +163,9 @@ int GridIndex_index(int i,int j,int k,int n)
 }
 int GridIndex_xyz(XYZ& p,int n,double dl,double L)
 {
-  int i=int(floor((p.x+L/2)/dl));
-  int j=int(floor((p.y+L/2)/dl));
-  int k=int(floor((p.z+L/2)/dl));
+  int i=int(floor((p.x+0.5*L)/dl));
+  int j=int(floor((p.y+0.5*L)/dl));
+  int k=int(floor((p.z+0.5*L)/dl));
   return n*n*k+n*j+i;
 
 }

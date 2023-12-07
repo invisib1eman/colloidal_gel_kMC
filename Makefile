@@ -23,10 +23,13 @@ $(PROG1):  $(OBJS1)
 	 $(CXX) $(LIBS) $^  $(CXXFLAGS) -o $@ 
 
 %.o:  %.cpp
-	$(CXX) $(LIBS) -c -o $@ $<
+	$(CXX) $(LIBS) -c -o $@ -g $<
 
 clean: 
-	rm -rf *.o 
+	rm -rf *.o
 
 distclean:
-	rm -f $(PROG1) *.o *.debug
+	rm -f $(PROG1) *.o *.debug *.txt *.log *.mol2 *.lammpstrj
+
+rerunclean:
+	rm -f *.debug *.txt *.log *.mol2 *.lammpstrj

@@ -14,8 +14,11 @@ public:
     int gID;//grid id
     vector<XYZ> ver; //Coordinates of vertices
     vector<char> vertype;//type of vertices: A, B, C, D, I(inactive)
-    vector<XYZ> aorigin;//original vertices
     int nbonds;//number of bonds
+    vector<XYZ> aorigin; 
+    
+        
+    
     vector<hbond> hbond_list;//list of hbonded neighbors and information
     XYZ centre; //Coordinates of centre
     quarternion orientation;
@@ -39,17 +42,18 @@ public:
         ver.push_back(XYZ(-0.5,-0.8660254,-0.47));
         aorigin.push_back(XYZ(1.0,0.0,0.47));
         aorigin.push_back(XYZ(1.0,0.0,-0.47));
-        aorigin.push_back(XYZ(-0.5,0.8660254,0.47));
-        aorigin.push_back(XYZ(-0.5,0.8660254,-0.47));
-        aorigin.push_back(XYZ(-0.5,-0.8660254,0.47));
-        aorigin.push_back(XYZ(-0.5,-0.8660254,-0.47));
+        aorigin.push_back(XYZ(-0.5,0.866,0.47));
+        aorigin.push_back(XYZ(-0.5,0.866,-0.47));
+        aorigin.push_back(XYZ(-0.5,-0.866,0.47));
+        aorigin.push_back(XYZ(-0.5,-0.866,-0.47));
         orientation=quarternion(1,0,0,0);
     }
-    
+
         
     
     void UpdateVertices()
     {
+        
         
         for(int i=0;i<N_VER;i++)
         {
