@@ -177,7 +177,6 @@ double MC::MoveMolecule()
         
         
         
-        
        
         vector<hbond> old_hbondlist=S.M[index].hbond_list;
         Molecule newmolecule=S.M[index];

@@ -41,6 +41,7 @@ class System
     double E_1=10;//hbond dis enthalpy
     double free_bond_freeenergy=-1;//free bond entropy
     double omega_B=0.001;//arrhenius prefactor
+    double omega_T=0.1;//frequency of change types
     void ReadInput(int argc, char *argv[])
     {
         double total_time;
@@ -53,7 +54,7 @@ class System
         ("NMOL,N", value<int>(&NMOL)->default_value(400), "#molecules (default 400)")
         ("box_length,L", value<double>(&L)->default_value(20.0), "length of box (default 20.0)")
         ("time,s", value<double>(&total_time)->default_value(100.0), "total time in tau_0 units (default 100.0)")
-        ("MCstep,m", value<double>(&MCstep)->default_value(0.05), "MC step size (default 0.05)")
+        ("MCstep,m", value<double>(&MCstep)->default_value(0.1), "MC step size (default 0.05)")
         ("GSL_SEED,g", value<int>(&GSL_SEED)->default_value(10), "seed for the RNG (default 10)")
         ("Description,D", value<string>(&Description)->default_value("nanorod"), "Description (default nanorod)");
 
