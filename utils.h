@@ -20,7 +20,9 @@ int GridIndex_index(int i,int j,int k,int n);//return gridindex based on index o
 int GridIndex_xyz(XYZ& p,int n,double dl,double L);//return gridindex based on position p, dl is grid length
 void GridLoc(int& i,int& j,int& k,int n,int index);//update xyz index based on grid index
 int neighborarm(int n);
-quarternion Rotate(quarternion old,double a,double b,double c);
+//quarternion Rotate(quarternion old,double a,double b,double c);
 XYZ real_vector(XYZ origin,double L);
+vector<Molecule> generate_unitcell(Molecule M1);
+vector<Molecule> generate_newunit(vector<Molecule> origin_cell,int latticeindex1,int latticeindex2,int latticeindex3);
 
 #endif

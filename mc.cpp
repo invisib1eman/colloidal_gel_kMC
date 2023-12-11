@@ -26,6 +26,7 @@ void MC::Sweep()
         {
             
             LogProfile(i,accept);
+            WriteEnergy(i);
             S.WriteMol2(i);
             S.WriteDump(i);
             S.WriteBond(i);
@@ -91,11 +92,82 @@ double MC::MoveMolecule()
     //ofstream out2;
     //out2.open("bond_energy.txt",ios::app);
     double accept=0.0;//accept events
-    list<int>::iterator it;
+    
     int N_break;
     int index;
     double delta;
-    //vector<int> sequence_M=generateRandom(S.NMOL);//randomly generate a sequence of the N molecules;
+    //break bonds
+    list<hbond>::iterator it;
+    double rand=gsl_rng_uniform(S.gsl_r);
+    if(rand<S.omega_B);//the relative frequency of breaking bond to frequency of diffusion step
+    {
+    for(it=S.H.begin();it!=S.H.end();)
+    {
+        hbond old_hbond=*it;
+        //calculate bond_dissociation energy
+        double E_dis=0;
+        int free_bonds=0;
+        E_dis+=S.E_1;//the basic enthalpy change of one bond
+        //count # of freed bonds
+        //find neighbor arms,first the one of M1, then the one of M2
+        int neighborarm1=neighborarm(old_hbond.arm1);
+        free_bonds+=2;
+        int bonded_index1;
+        vector<hbond> old_hbondlist=S.M[old_hbond.M1].hbond_list;
+        for(int p=0;p<old_hbondlist.size();p++)
+        {
+            if(old_hbondlist[p].arm1==neighborarm1)
+            {
+                free_bonds-=2;
+            }
+            if(old_hbondlist[p].arm1==old_hbond.arm1)
+            {
+                bonded_index1=p;
+            }
+        } 
+        int neighborarm2=neighborarm(old_hbond.arm2);
+        free_bonds+=2;
+        vector<hbond> bonded_neighbor_hbondlist=S.M[old_hbond.M2].hbond_list;
+        int bonded_index2;
+        for(int p=0;p<bonded_neighbor_hbondlist.size();p++)
+        {
+            if(bonded_neighbor_hbondlist[p].arm1==neighborarm2)
+            {
+                free_bonds-=2;
+            }
+            if(bonded_neighbor_hbondlist[p].arm1==old_hbond.arm2)
+            {
+                bonded_index2=p;
+            }
+        }                 
+        E_dis+=free_bonds*S.free_bond_freeenergy;
+            
+        if(Arrhenius(1,E_dis,gsl_rng_uniform(S.gsl_r)))
+        {
+            //break bond
+            S.M[old_hbond.M1].vertype[old_hbond.arm1]='A';
+            out<<"Break bond"<<setw(12)<<old_hbond.M1<<setw(12)<<old_hbond.M2<<setw(12)<<old_hbond.arm1<<setw(12)<<old_hbond.arm2<<endl;
+            S.M[old_hbond.M1].hbond_list[bonded_index1]=S.M[old_hbond.M1].hbond_list.back();
+            S.M[old_hbond.M1].nbonds-=1;
+            
+            S.M[old_hbond.M1].hbond_list.pop_back();
+            S.M[old_hbond.M2].vertype[old_hbond.arm2]='A';
+            
+            S.M[old_hbond.M2].hbond_list[bonded_index2]=S.M[old_hbond.M2].hbond_list.back();
+            S.M[old_hbond.M2].nbonds-=1;
+            
+            S.M[old_hbond.M2].hbond_list.pop_back();
+            it=S.H.erase(it);
+                
+        }
+        else{
+            ++it;
+        }
+    }
+    }
+    //diffusion rotation
+    //diffusion translation
+    //diffusion limited bond formation
     for(int i=0; i<S.NMOL; i++)
     {
         index=gsl_rng_uniform_int(S.gsl_r,S.NMOL);
@@ -103,70 +175,11 @@ double MC::MoveMolecule()
         delta=0;//energy difference
         //int index=sequence_M[i];//index of the current trial molecule
         
-        //Check the molecule bonds and see if the bonds will break, the probability of breaking a bond is given by Arrhenius formula
         
+        
+        
+       
         vector<hbond> old_hbondlist=S.M[index].hbond_list;
-       
-        vector<hbond_index> erase_bondlist;
-        erase_bondlist.clear();
-        for(int n=0;n<old_hbondlist.size();n++)
-        {
-            hbond old_hbond=old_hbondlist[n];
-            //calculate bond_dissociation energy
-            double E_dis=0;
-            int free_bonds=0;
-            E_dis+=S.E_1;//the basic enthalpy change of one bond
-            //count # of freed bonds
-            //find neighbor arms,first the one of M1, then the one of M2
-            int neighborarm1=neighborarm(old_hbond.arm1);
-            free_bonds+=2;
-            for(int p=0;p<old_hbondlist.size();p++)
-            {
-                if(old_hbondlist[p].arm1==neighborarm1)
-                {
-                    free_bonds-=2;
-                }
-            } 
-            int neighborarm2=neighborarm(old_hbond.arm2);
-            free_bonds+=2;
-            vector<hbond> bonded_neighbor_hbondlist=S.M[old_hbond.M2].hbond_list;
-            int bonded_index;
-            for(int p=0;p<bonded_neighbor_hbondlist.size();p++)
-            {
-                if(bonded_neighbor_hbondlist[p].arm1==neighborarm2)
-                {
-                    free_bonds-=2;
-                }
-                if(bonded_neighbor_hbondlist[p].arm1==old_hbond.arm2)
-                {
-                    bonded_index=p;
-                }
-            }                 
-            E_dis+=free_bonds*S.free_bond_freeenergy;
-            
-            if (Arrhenius(S.A,E_dis,gsl_rng_uniform(S.gsl_r)))
-            {
-                erase_bondlist.push_back(hbond_index(old_hbond.M1,n));
-                erase_bondlist.push_back(hbond_index(old_hbond.M2,bonded_index));
-                
-                
-            }
-            
-            
-        }
-        for(int q=0;q<erase_bondlist.size();q++)
-        {
-            //break bond
-            S.M[erase_bondlist[q].molid].vertype[S.M[erase_bondlist[q].molid].hbond_list[erase_bondlist[q].hbondindex].arm1]='A';
-            out<<"Break bond"<<setw(12)<<S.M[erase_bondlist[q].molid].hbond_list[erase_bondlist[q].hbondindex].M1<<setw(12)<<S.M[erase_bondlist[q].molid].hbond_list[erase_bondlist[q].hbondindex].M2<<setw(12)<<S.M[erase_bondlist[q].molid].hbond_list[erase_bondlist[q].hbondindex].arm1<<setw(12)<<S.M[erase_bondlist[q].molid].hbond_list[erase_bondlist[q].hbondindex].arm2<<endl;
-            S.M[erase_bondlist[q].molid].hbond_list[erase_bondlist[q].hbondindex]=S.M[erase_bondlist[q].molid].hbond_list.back();
-            S.M[erase_bondlist[q].molid].nbonds-=1;
-            
-            S.M[erase_bondlist[q].molid].hbond_list.pop_back();
-        }
-        
-       
-        old_hbondlist=S.M[index].hbond_list;
         Molecule newmolecule=S.M[index];
         newmolecule.centre=RandomTranslate(S.M[index].centre,S.MCstep,gsl_rng_uniform(S.gsl_r),gsl_rng_uniform(S.gsl_r));
         XYZ image_center=image(newmolecule.centre,S.L);
@@ -185,7 +198,10 @@ double MC::MoveMolecule()
             
             for(int n=0; n<newmolecule.nbonds; n++)
             {
-                delta+=E.hbonde_fene(newmolecule,S.M[newmolecule.hbond_list[n].M2],n)-E.hbonde_fene(S.M[index],S.M[newmolecule.hbond_list[n].M2],n);
+                double delta_fene=E.hbonde_fene(newmolecule,S.M[newmolecule.hbond_list[n].M2],newmolecule.hbond_list[n].arm1,newmolecule.hbond_list[n].arm2)-E.hbonde_fene(S.M[index],S.M[newmolecule.hbond_list[n].M2],newmolecule.hbond_list[n].arm1,newmolecule.hbond_list[n].arm2);
+                double delta_angle=E.hbonde_angle(newmolecule,S.M[newmolecule.hbond_list[n].M2],newmolecule.hbond_list[n].arm1,newmolecule.hbond_list[n].arm2)-E.hbonde_angle(S.M[index],S.M[newmolecule.hbond_list[n].M2],newmolecule.hbond_list[n].arm1,newmolecule.hbond_list[n].arm2);
+                double delta_dihedral=E.hbonde_dihedral(newmolecule,S.M[newmolecule.hbond_list[n].M2],newmolecule.hbond_list[n].arm1,newmolecule.hbond_list[n].arm2)-E.hbonde_dihedral(S.M[index],S.M[newmolecule.hbond_list[n].M2],newmolecule.hbond_list[n].arm1,newmolecule.hbond_list[n].arm2);
+                delta+=delta_fene+delta_angle+delta_dihedral;
                 //cout<<delta<<endl;
             }
         }
@@ -206,6 +222,8 @@ double MC::MoveMolecule()
             {
                 continue;
             }
+            //iterate about molecules in the neighborlist
+            list<int>::iterator it;
             for(it=S.G[temp_gID].plist.begin();it!=S.G[temp_gID].plist.end();it++)
             {
                 int j=*it;
@@ -216,15 +234,31 @@ double MC::MoveMolecule()
                     delta+=E.WCA(rnew2);
                     //find possible new bonds
                     double r2_cm=min_d2(newmolecule.centre,S.M[j].centre,S.L);
-                    if (r2_cm<S.max2_cm)//check if the cm distance is in the range, can save time
+                    if (r2_cm<S.search2_cm)//check if the cm distance is in the range, can save time
                     {
+                        
+                        //iterate about new molecule vertices
                         for(int k=0;k<newmolecule.N_VER;k++)
                         {
+                            //iterate about the neighbor vertices
                             for(int l=0;l<S.M[j].N_VER;l++)
                             {
                                 double r2_arms=min_d2(newmolecule.ver[k],S.M[j].ver[l],S.L);
-                                if (r2_arms<S.maxl2_bond&&newmolecule.vertype[k]=='A'&&S.M[j].vertype[l]=='A')
+                                XYZ arm1=image(newmolecule.ver[k],S.L);
+                                XYZ centre1=image(newmolecule.centre,S.L);
+                                XYZ neighborarm1=image(newmolecule.ver[neighborarm(k)],S.L);
+                                XYZ arm2=image(S.M[j].ver[l],S.L);
+                                XYZ centre2=image(S.M[j].centre,S.L);
+                                XYZ neighborarm2=image(S.M[j].ver[neighborarm(l)],S.L);
+                                
+                                double alpha=angle_vectors(real_vector(arm1-centre1,S.L),real_vector(arm2-arm1,S.L));
+                                double beta=angle_vectors(real_vector(arm2-centre2,S.L),real_vector(arm1-arm2,S.L));
+                                double xhi=dihedral_vectors(real_vector(neighborarm1-centre1,S.L),real_vector(centre2-centre1,S.L),real_vector(neighborarm2-centre2,S.L));
+                              
+                                //check type, distance between arms, angles and dihedral
+                                if (newmolecule.vertype[k]=='A'&&S.M[j].vertype[l]=='A'&&r2_arms<S.searchl2_bond&&alpha<S.search_angle&&beta<S.search_angle&& abs(xhi)<S.search_xhi)
                                 {
+                                    
                                     
                                     bool bonded=false;//check if there is already bonds between the two molecules, only one bond can exist between two molecules
                                     for(int n=0;n<old_hbondlist.size();n++)
@@ -262,10 +296,7 @@ double MC::MoveMolecule()
         {
             //ID of new neighboring grids
             int temp_gID=S.G[old_gID].nbr[l];
-            if(S.G[temp_gID].plist.empty())
-            {
-                continue;
-            }
+            list<int>::iterator it;
             for(it=S.G[temp_gID].plist.begin();it!=S.G[temp_gID].plist.end();it++)
             {
                 int j=*it;
@@ -310,12 +341,22 @@ double MC::MoveMolecule()
                     S.M[new_hbondlist[m].M2].vertype[new_hbondlist[m].arm2]='I';
                     S.M[new_hbondlist[m].M2].nbonds+=1;
                     out<<"form a hbond"<<setw(12)<<new_hbondlist[m].M1<<setw(12)<<new_hbondlist[m].M2<<setw(12)<<new_hbondlist[m].arm1<<setw(12)<<new_hbondlist[m].arm2<<endl;
+                    if(new_hbondlist[m].M1<new_hbondlist[m].M2)
+                    {
+                        S.H.push_back(new_hbondlist[m]);
+                    }
+                    else
+                    {
+                        S.H.push_back(hbond(new_hbondlist[m].M2,new_hbondlist[m].M1,new_hbondlist[m].arm2,new_hbondlist[m].arm1));
+                    }
                 }
+
             }
         }
         
         
     }
+    
     return accept/double(S.NMOL);
 }
 
@@ -343,7 +384,90 @@ bool MC::Arrhenius(double A,double delta, double rand)
     
     
 }
+double MC::WCAEnergy()
+{
+    double ewca=0;
+    list<int>::iterator it;
+    for(int i=0;i<S.NMOL;i++)
+    {
+        int old_gID=S.M[i].gID;
+        for(int l=0;l<nbr_g;l++)
+        {
+            //ID of new neighboring grids
+            int temp_gID=S.G[old_gID].nbr[l];
+            
+            for(it=S.G[temp_gID].plist.begin();it!=S.G[temp_gID].plist.end();it++)
+            {
+                int j=*it;
+                if(j>i)//avoid double counting
+                {
+                    //image distance
+                    double r2=min_d2(S.M[j].centre,S.M[i].centre,S.L);
+                    ewca+=E.WCA(r2);
+                    
 
+
+                }
+            }
+        }
+    }
+    return ewca;
+}
+double MC::FENE_energy()
+{
+    double efene=0;
+    list<hbond>::iterator it;
+    for(it=S.H.begin();it!=S.H.end();it++)
+    {
+        hbond j=*it;
+        efene+=E.hbonde_fene(S.M[j.M1],S.M[j.M2],j.arm1,j.arm2);
+    }
+    return efene;
+}
+double MC::Angle_energy()
+{
+    double eangle=0;
+    list<hbond>::iterator it;
+    for(it=S.H.begin();it!=S.H.end();it++)
+    {
+        hbond j=*it;
+        eangle+=E.hbonde_angle(S.M[j.M1],S.M[j.M2],j.arm1,j.arm2);
+    }
+    return eangle;
+}
+double MC::Dihedral_energy()
+{
+    double edihedral=0;
+    list<hbond>::iterator it;
+    for(it=S.H.begin();it!=S.H.end();it++)
+    {
+        hbond j=*it;
+        edihedral+=E.hbonde_dihedral(S.M[j.M1],S.M[j.M2],j.arm1,j.arm2);
+    }
+    return edihedral;   
+}
+double MC::bond_energy()
+{
+    double ebond;
+    ebond=-S.H.size()*S.E_1;
+    return ebond;
+}
+double MC::bond_freeze_freenerngy()
+{
+    double efreeze;
+    int nfreeze;
+    for(int i=0;i<S.NMOL;i++)
+    {
+        Molecule m=S.M[i];
+        for(int l=0;l<m.N_VER;l++)
+        {
+            if(m.vertype[l]=='I'||m.vertype[neighborarm(l)]=='I')
+            nfreeze+=1;
+
+        }
+    }
+    efreeze=nfreeze*S.free_bond_freeenergy;
+}
 double MC::TotalEnergy()
 {
     double totalenergy=0.0;
@@ -357,4 +481,14 @@ double MC::TotalEnergy()
         
     }*/
     return totalenergy;
+}
+double MC::WriteEnergy(int timestep)
+{
+    ofstream out;
+    out.open("energy.txt",ios::app);
+    out<<"TIMESTEP"<<endl;
+    out<<timestep<<endl;
+    out<<"WCA"<<'\t'<<"FENE"<<'\t'<<"Angle"<<'\t'<<"Dihedral"<<'\t'<<"Bond"<<'\t'<<"Bond_freeze"<<endl;
+    out<<WCAEnergy()<<'\t'<<FENE_energy()<<'\t'<<Angle_energy()<<'\t'<<Dihedral_energy()<<'\t'<<bond_energy()<<'\t'<<bond_freeze_freenerngy()<<endl;
+    out.close();
 }

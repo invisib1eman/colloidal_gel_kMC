@@ -7,7 +7,7 @@
 #include "hbond.h"
 #include "energies.h"
 #include "grid.h"
-//#include "energies.h"
+#include "aggregate.h"
 class MC
 {
     public:
@@ -24,7 +24,14 @@ class MC
         double MoveMolecule();
         bool Glauber(double, double);
         bool Arrhenius(double A,double delta, double rand);
+        double WCAEnergy();
+        double FENE_energy();
+        double Angle_energy();
+        double Dihedral_energy();
+        double bond_energy();
+        double bond_freeze_freenerngy();
         double TotalEnergy();
+        double WriteEnergy(int timestep);
 };
 #endif
 

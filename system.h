@@ -7,11 +7,15 @@
 #include "molecule.h"
 #include "utils.h"
 #include "grid.h"
+#include "aggregate.h"
 class System
 {
   public:
     vector<Molecule> M; //List of molecules
-    vector<Grid> G;
+    vector<Grid> G;//grid list
+    list<hbond> H;//hbond list
+    //list<Aggregate> Ag;//list of aggregates
+    
     int NGRID,NGRID3;//NGRID=#cell in one direction, NGRID3=total # of cells of grid, NCELL=#particles per cell
     double NCELL;
     double GRIDL;//Grid length in one direction
@@ -19,20 +23,24 @@ class System
     gsl_rng * gsl_r;
     string Description;
     int NMOL; //Number of molecules
+    double coresize=0.2;
     double arm_L=1.1;
-    double bond_length=0.28;
-    double bond_extension=0.1;
-    double maxl2_bond=pow(bond_length+bond_extension,2);
+    double bond_length=0.3;//minimum of fene potential, see energy.h
+    double bond_extension=0.2;//max init energy is 6.4kT,see energy.h
+    double searchl2_bond=pow(bond_length+bond_extension,2);//the length range of forming a bond
     double cm_L=arm_L*2+bond_length;
-    double max2_cm=pow(cm_L+bond_extension,2);
+    double search2_cm=pow(cm_L+bond_extension,2);//the cm distance when it is possible to form a bond
+    double search_angle=0.3;//max init energy is 13.5kT at Kalpha=300
+    double search_xhi=0.3;
     double L; //Length of box
     int GSL_SEED; //Seed of random number generator
     int nsweep; //Number of MC sweeps
     double deltat; //Timestep
     double MCstep; //Step size of translation
+    double MCstep_rotation;//Step size of rotation
     double E_1=10;//hbond dis enthalpy
     double free_bond_freeenergy=-1;//free bond entropy
-    double A=0.001;//arrhenius prefactor
+    double omega_B=0.001;//arrhenius prefactor
     void ReadInput(int argc, char *argv[])
     {
         double total_time;

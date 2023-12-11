@@ -7,5 +7,6 @@
         "ostream": "cpp",
         "*.tcc": "cpp",
         "iosfwd": "cpp"
-    }
+    },
+    "C_Cpp.dimInactiveRegions": false
 }

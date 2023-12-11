@@ -40,7 +40,7 @@ void System::Create()
    
     //Fill particles Use random permutation
     bool flag;
-    
+    H.clear();//init hbond list
     
     
     int count=0;
@@ -80,6 +80,8 @@ void System::Create()
         m.UpdateVertices();
         M.push_back(m);
     }
+    //init a ring
+
 }
 
 void System::WriteMol2(int timestep)
@@ -91,7 +93,7 @@ void System::WriteMol2(int timestep)
     
     out<<"@<TRIPOS>MOLECULE"<<endl;
     out<<"Nanorod"<<endl;
-    out<<NMOL*(n_ver+1)<<"\t"<<NMOL*n_ver<<endl;
+    out<<NMOL*(n_ver+1)<<"\t"<<NMOL*n_ver+H.size()<<endl;
     out<<"SMALL"<<endl;
     out<<"NO_CHARGES"<<endl;
 
@@ -126,21 +128,17 @@ void System::WriteMol2(int timestep)
             out<<setw(8)<<++count<<"\t"<<setw(8)<<(n_ver+1)*i+1<<"\t"<<setw(8)<<(n_ver+1)*i+j+2<<"\t"<<setw(2)<<"1"<<endl;
         }
     }
-    for(int j=0;j<NMOL;j++)
+    list<hbond>::iterator it;
+    for(it=H.begin();it!=H.end();it++)
     {
-        if(M[j].hbond_list.size()>0)
-        {
-            for(int k=0;k<M[j].hbond_list.size();k++)
-            {
-                if(M[j].hbond_list[k].M2>j)
-                {
-                    out<<setw(8)<<++count<<"\t"<<setw(8)<<(n_ver+1)*j+k+2<<"\t"<<setw(8)<<(n_ver+1)*M[j].hbond_list[k].M2+M[j].hbond_list[k].arm2+2<<"\t"<<setw(2)<<"2"<<endl;
-                }
-                
-            }
-        }
+        hbond writebond=*it;
+        out<<setw(8)<<++count<<"\t"<<setw(8)<<(n_ver+1)*writebond.M1+writebond.arm1+1<<"\t"<<setw(8)<<(n_ver+1)*writebond.M2+writebond.arm2+1<<"\t"<<setw(2)<<"1"<<endl;
+            
+        
         
     }
+        
+    
 
     out.close();
     //   cout<<"Mol2 input written in\t"<<FileName<<endl;
@@ -187,15 +185,13 @@ void System::WriteBond(int timestep)
     out<<"TIMESTEP"<<endl;
     out<<timestep<<endl;
     out<<setw(12)<<"molecule1"<<"\t"<<setw(12)<<"molecule2"<<"\t"<<setw(12)<<"arm1"<<"\t"<<setw(8)<<"arm2"<<endl;
-    for(int j=0;j<NMOL;j++)
+    list<hbond>::iterator it;
+    for(it=H.begin();it!=H.end();it++)
     {
-        if(M[j].hbond_list.size()>0)
-        {
-            for(int k=0;k<M[j].hbond_list.size();k++)
-            {
-                out<<setw(12)<<M[j].hbond_list[k].M1<<setw(12)<<M[j].hbond_list[k].M2<<setw(12)<<M[j].hbond_list[k].arm1<<setw(12)<<M[j].hbond_list[k].arm2<<endl;
-            }
-        }
+        hbond writebond=*it;
+        out<<setw(12)<<writebond.M1<<setw(12)<<writebond.M2<<setw(12)<<writebond.arm1<<setw(12)<<writebond.arm2<<endl;
+            
+        
         
     }
     out.close();
