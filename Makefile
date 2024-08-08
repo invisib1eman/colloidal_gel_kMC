@@ -1,16 +1,15 @@
-PROG1 = NANOROD
+PROG1 = COLLOIDGEL
 
-SRC1 = main.cpp system.cpp utils.cpp mc.cpp quarternion.cpp
+SRC1 = main.cpp system.cpp utils.cpp mc.cpp
 
 OBJS1 = ${SRC1:.cpp=.o}
 
-CXX = g++
-CXXFLAGS= -lboost_program_options -lgsl -lgslcblas -std=c++11 -lm
-#on ubuntu
-LIBS=-I/usr/include
-#on Mac M1
-#LIBS=-I/opt/homebrew/include -L/opt/homebrew/lib
-#-L/usr/local/gsl/lib
+CXX = clang++
+# Compilation flags
+CXXFLAGS = -std=c++11 -Wall -Wextra -pedantic -I/opt/homebrew/include
+
+# Linker flags
+LDFLAGS = -L/opt/homebrew/lib -lboost_program_options -lgsl -lgslcblas -lm
 
 
  
@@ -20,10 +19,10 @@ LIBS=-I/usr/include
 all: $(PROG1) 
 
 $(PROG1):  $(OBJS1)
-	 $(CXX) $(LIBS) $^  $(CXXFLAGS) -o $@ 
+	 $(CXX) -o $@ $^ $(LDFLAGS)
 
 %.o:  %.cpp
-	$(CXX) $(LIBS) -c -o $@ -g $<
+	$(CXX) -c $< $(CXXFLAGS)
 
 clean: 
 	rm -rf *.o

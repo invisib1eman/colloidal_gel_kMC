@@ -2,7 +2,7 @@
 #include "system.h"
 void System::Create()
 {
-    
+    cout<<NMOL<<endl;
     cout<<"Creating System"<<endl;
     int i,j,k,l,n;
     //Allocate Grid
@@ -40,7 +40,6 @@ void System::Create()
    
     //Fill particles Use random permutation
     bool flag;
-    H.clear();//init hbond list
     
     
     int count=0;
@@ -70,80 +69,20 @@ void System::Create()
     NMOL=2;*/
     for(int i=0; i<NMOL; i++)
     {
-        Molecule m;
-        m.MOL_ID=i;
-        m.centre=XYZ(gsl_rng_uniform(gsl_r)*L-0.5*L,gsl_rng_uniform(gsl_r)*L-0.5*L,gsl_rng_uniform(gsl_r)*L-0.5*L);
-        m.gID=GridIndex_xyz(m.centre,NGRID,GRIDL,L);
-        G[m.gID].n+=1;
-        G[m.gID].plist.push_back(m.MOL_ID);
-        m.orientation=RandomRotate(angle_to_quarternion(0,0,0), 1,gsl_rng_uniform(gsl_r),gsl_rng_uniform(gsl_r),gsl_rng_uniform(gsl_r));
-        m.UpdateVertices();
-        M.push_back(m);
+        Particle p;
+        p.P_ID=i;
+        p.position=XYZ(gsl_rng_uniform(gsl_r)*L-0.5*L,gsl_rng_uniform(gsl_r)*L-0.5*L,gsl_rng_uniform(gsl_r)*L-0.5*L);
+        p.gID=GridIndex_xyz(p.position,NGRID,GRIDL,L);
+        G[p.gID].n+=1;
+        G[p.gID].plist.push_back(p.P_ID);
+        P.push_back(p);
     }
-    //init a ring
+    cout<<"initialized"<<endl;
 
 }
 
-void System::WriteMol2(int timestep)
-{
-    ofstream out;
-    out.open("conf.mol2",ios::app);
-    out<<timestep<<endl;
-    int n_ver=M[0].N_VER;
-    
-    out<<"@<TRIPOS>MOLECULE"<<endl;
-    out<<"Nanorod"<<endl;
-    out<<NMOL*(n_ver+1)<<"\t"<<NMOL*n_ver+H.size()<<endl;
-    out<<"SMALL"<<endl;
-    out<<"NO_CHARGES"<<endl;
 
-    out<<"@<TRIPOS>ATOM"<<endl;
 
-    string name,type;
-    
-    int count=0;
-    
-    XYZ im,shift;
-    
-    for(int i=0; i<NMOL; i++)
-    {
-        shift=image(M[i].centre,L)-M[i].centre;
-        im=M[i].centre+shift;
-        out<<setw(6)<<++count<<"\t"<<"1"<<"\t"<<setw(8)<<im.x<<"\t"<<setw(8)<<im.y<<"\t"<<setw(8)<<im.z<<"\t"<<"C.3"<<endl;
-        
-        for(int j=0; j<n_ver; j++)
-        {
-            im=M[i].ver[j]+shift;
-            out<<setw(6)<<++count<<"\t"<<"2"<<"\t"<<setw(8)<<im.x<<"\t"<<setw(8)<<im.y<<"\t"<<setw(8)<<im.z<<"\t"<<"N.3"<<endl;
-        }
-    }
-          
-    out<<"@<TRIPOS>BOND"<<endl;
-    
-    count=0;
-    for(int i=0; i<NMOL; i++)
-    {
-        for(int j=0; j<n_ver; j++)
-        {
-            out<<setw(8)<<++count<<"\t"<<setw(8)<<(n_ver+1)*i+1<<"\t"<<setw(8)<<(n_ver+1)*i+j+2<<"\t"<<setw(2)<<"1"<<endl;
-        }
-    }
-    list<hbond>::iterator it;
-    for(it=H.begin();it!=H.end();it++)
-    {
-        hbond writebond=*it;
-        out<<setw(8)<<++count<<"\t"<<setw(8)<<(n_ver+1)*writebond.M1+writebond.arm1+1<<"\t"<<setw(8)<<(n_ver+1)*writebond.M2+writebond.arm2+1<<"\t"<<setw(2)<<"1"<<endl;
-            
-        
-        
-    }
-        
-    
-
-    out.close();
-    //   cout<<"Mol2 input written in\t"<<FileName<<endl;
-    return;
-}
 void System::WriteDump(int timestep)
 {
     char FileName[200];
@@ -154,8 +93,7 @@ void System::WriteDump(int timestep)
     out<<"ITEM: TIMESTEP"<<endl;
     out<<timestep<<endl;
     out<<"ITEM: NUMBER OF ATOMS"<<endl;
-    int NT=NMOL*7;
-    out<<NT<<endl;
+    out<<NMOL<<endl;
     out<<"ITEM: BOX BOUNDS pp pp pp"<<endl;
     out<<-0.5*L<<"\t"<<0.5*L<<endl;
     out<<-0.5*L<<"\t"<<0.5*L<<endl;
@@ -165,55 +103,17 @@ void System::WriteDump(int timestep)
     out<<NT<<endl;
     out<<"Time="<<timestep<<endl;*/
     XYZ im;
-    XYZ im_centre;
+    XYZ im_pos;
     for(int i=0;i<NMOL;i++)
     {   
-        im_centre=image(M[i].centre,L);
-        out<<setw(6)<<i*7+1<<"\t"<<1<<"\t"<<setw(8)<<im_centre.x<<"\t"<<setw(8)<<im_centre.y<<"\t"<<setw(8)<<im_centre.z<<endl;
-        for(int j=0;j<6;j++)
-        {
-            im=image(M[i].ver[j],L);
-            out<<setw(6)<<i*7+j+2<<"\t"<<2<<"\t"<<setw(8)<<im.x<<"\t"<<setw(8)<<im.y<<"\t"<<setw(8)<<im.z<<endl;
-        }
-    }
-    out.close();
-}
-void System::WriteBond(int timestep)
-{
-    ofstream out;
-    out.open("Bondlist.txt",ios::app);
-    out<<"TIMESTEP"<<endl;
-    out<<timestep<<endl;
-    out<<setw(12)<<"molecule1"<<"\t"<<setw(12)<<"molecule2"<<"\t"<<setw(12)<<"arm1"<<"\t"<<setw(8)<<"arm2"<<endl;
-    list<hbond>::iterator it;
-    for(it=H.begin();it!=H.end();it++)
-    {
-        hbond writebond=*it;
-        out<<setw(12)<<writebond.M1<<setw(12)<<writebond.M2<<setw(12)<<writebond.arm1<<setw(12)<<writebond.arm2<<endl;
-            
-        
+        im_pos=image(P[i].position,L);
+        out<<setw(6)<<i+1<<"\t"<<1<<"\t"<<setw(8)<<im_pos.x<<"\t"<<setw(8)<<im_pos.y<<"\t"<<setw(8)<<im_pos.z<<endl;
         
     }
     out.close();
 }
-void System::WriteOrientation(int timestep)
-{
-    ofstream out;
-    out.open("Orientation.txt",ios::app);
-    out<<"TIMESTEP"<<endl;
-    out<<timestep<<endl;
-    out<<setw(12)<<"molecule1"<<"\t"<<setw(12)<<"molecule2"<<"\t"<<setw(12)<<"arm1"<<"\t"<<setw(8)<<"arm2"<<endl;
-    for(int j=0;j<NMOL;j++)
-    {
-        
-        out<<setw(12)<<M[j].orientation.w<<setw(12)<<M[j].orientation.x<<setw(12)<<M[j].orientation.y<<setw(12)<<M[j].orientation.z<<endl;
-            
-        
-    
-    }
-    out.close();
 
-}
+
 void System::WriteGrid(int timestep)
 {
     ofstream out;

@@ -14,8 +14,6 @@ int main(int argc, char *argv[])
     System sys;
     sys.ReadInput(argc,argv);
     sys.Create();
-    sys.WriteMol2(0);
-	
     MC mc;
     mc.S=sys;
     mc.Sweep();
