@@ -2,7 +2,7 @@
 #include "system.h"
 void System::Create()
 {
-    
+    cout<<NMOL<<endl;
     cout<<"Creating System"<<endl;
     int i,j,k,l,n;
     //Allocate Grid
@@ -190,11 +190,11 @@ void System::WriteDump(int timestep)
     out<<NT<<endl;
     out<<"Time="<<timestep<<endl;*/
     XYZ im;
-    XYZ im_centre;
+    XYZ im_pos;
     for(int i=0;i<NMOL;i++)
     {   
-        im_centre=image(P[i].position,L);
-        out<<setw(6)<<i+1<<"\t"<<1<<"\t"<<setw(8)<<im_centre.x<<"\t"<<setw(8)<<im_centre.y<<"\t"<<setw(8)<<im_centre.z<<endl;
+        im_pos=image(P[i].position,L);
+        out<<setw(6)<<i+1<<"\t"<<1<<"\t"<<setw(8)<<im_pos.x<<"\t"<<setw(8)<<im_pos.y<<"\t"<<setw(8)<<im_pos.z<<endl;
         
     }
     out.close();

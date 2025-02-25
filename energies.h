@@ -5,7 +5,7 @@
 #include "utils.h"
 #include "particle.h"
 #include "xyz.h"
-#include "quarternion.h"
+#include "particle.h"
 class Energy
 {
 public:

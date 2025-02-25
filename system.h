@@ -92,7 +92,7 @@ class System
 	exit(1);
     }
         GRIDL=L/NGRID;
-        if(GRIDL<cm_L*0.5)
+        if(GRIDL<R_hardcore*2)
         {
             cout<<"Error: Grid size too small"<<endl;
             exit(1);

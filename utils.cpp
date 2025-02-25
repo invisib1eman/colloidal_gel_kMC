@@ -74,17 +74,7 @@ XYZ RandomTranslate(XYZ old, double step,double u,double v)
 }
 
 
-quarternion RandomRotate(quarternion old, double step,double a,double b,double c)
-{
-    
-    double theta=2.0*M_PI*a*step;
-    double alpha=acos(2.0*b-1.0);
-    double beta=2.0*M_PI*(c-0.5);
-    quarternion rotate=angle_to_quarternion(theta,alpha,beta);
-    quarternion neworientation=quartermulti(rotate,old);
-    neworientation.normalize();
-    return neworientation;
-}
+
 int getNum(vector<int>& v)
 {
  

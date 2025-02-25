@@ -7,7 +7,6 @@
 // #include "hbond.h"
 #include "energies.h"
 #include "grid.h"
-#include "aggregate.h"
 class MC
 {
     public:
