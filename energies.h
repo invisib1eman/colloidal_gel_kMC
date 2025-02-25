@@ -14,9 +14,9 @@ public:
     double charge;
     double L;
     double R_hardcore;
-    double well_depth = 10000;
+    double well_depth = -10000;
     double well_width;
-    double well_edge = R_hardcore + well_width;
+    double well_edge;
     double Debye_Huckel(double r2)
     {
         double r = sqrt(r2);
@@ -27,11 +27,11 @@ public:
     double potential_well(double r2)
     {
         double r = sqrt(r2);
-        if (r < well_edge && r > R_hardcore)
+        if (r < 2*well_edge && r > 2*R_hardcore)
         {
             return well_depth;
         }
-        else if (r <= R_hardcore)
+        else if (r <= 2*R_hardcore)
         {
             return 10000;
         }
@@ -42,7 +42,7 @@ public:
     }
     double total_energy(double r2)
     {
-        return Debye_Huckel(r2) + potential_well(r2);
+        return Debye_Huckel(r2)+potential_well(r2);
     }
 };
 #endif

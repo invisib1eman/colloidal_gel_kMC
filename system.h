@@ -26,7 +26,7 @@ class System
     //volume fraction 3%
 
     double R=1;//radius = 8nm
-    double R_hardcore = 1.2;//hardcore radius = 9.6 nm
+    double R_hardcore = 1.15;//hardcore radius = 1.15*8 nm
     double charge = 12.6;//charge of the molecule
     double debye_length = 0.91875;//debye length 7.35 nm at 0.9 mM salt
     double bjerrum_length = 0.1875;//bjerrum length
@@ -34,12 +34,14 @@ class System
     double arm_L=0.25;//arm length = 2nm
     double cm_L=(arm_L+R)*2;//the cm distance when it is possible to form a bond
     double search2_cm=pow(cm_L,2);//the cm distance when it is possible to form a bond
+    double well_width = 0.1;//well width
     double L; //Length of box
     int GSL_SEED; //Seed of random number generator
     int nsweep; //Number of MC sweeps
     double deltat; //Timestep
     double MCstep; //Step size of translation
     double free_bond_freeenergy=-1;//free bond entropy
+    bool freeroll = 1;//1 is true 0 is false
     void ReadInput(int argc, char *argv[])
     {
         double total_time;
@@ -56,8 +58,8 @@ class System
         ("GSL_SEED,g", value<int>(&GSL_SEED)->default_value(10), "seed for the RNG (default 10)")
         ("debye_length,d", value<double>(&debye_length)->default_value(0.91875), "debye length (default 0.91875)")
         ("Description,D", value<string>(&Description)->default_value("nanorod"), "Description (default nanorod)");
-
-        
+        ("well_width,w", value<double>(&well_width)->default_value(0.1), "well width (default 0.1)");
+        ("freeroll,f", value<bool>(&freeroll)->default_value(1), "freeroll (default 1)");
         variables_map vm;
         store(parse_command_line(argc, argv, desc), vm);
         notify(vm);
@@ -106,5 +108,6 @@ class System
     // void WriteGrid(int timestep);
     void UpdateGrid();
     void WriteData(int timestep);
+    void CreateDump();
 };
 #endif

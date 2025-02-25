@@ -100,6 +100,7 @@ void System::Create()
             cout<<"Init: Total number wrong"<<endl;
             exit(0);
     }
+    CreateDump();
 }
 
 // void System::WriteMol2(int timestep)
@@ -162,6 +163,13 @@ void System::Create()
 //     //   cout<<"Mol2 input written in\t"<<FileName<<endl;
 //     return;
 // }
+void System::CreateDump()
+{
+    string FileName = "trajectories/" + Description + "_Dump.lammpstrj";
+    ofstream out;
+    out.open(FileName,ios::trunc);
+    out.close();
+}
 void System::WriteDump(int timestep)
 {
     string FileName = "trajectories/" + Description + "_Dump.lammpstrj";
@@ -195,7 +203,7 @@ void System::WriteData(int timestep)
 {
     string FileName = "data/" + Description + "_Dump.data";
     ofstream out;
-    out.open(FileName,ios::app);
+    out.open(FileName,ios::trunc);
     
     // Header section
     out << "LAMMPS data file from NANOROD simulation at timestep " << timestep << endl;

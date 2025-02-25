@@ -54,7 +54,7 @@ void MC::WriteTemplate()
 {
     string FileName = "logs/" + S.Description + "_MC.log";
     ofstream out;
-    out.open(FileName,ios::app);
+    out.open(FileName,ios::trunc);
     out<<setw(12)<<"sweep"<<"\t"<<setw(12)<<"time"<<"\t"<<setw(12)<<"N_clusters"<<setw(12)<<"Accept"<<"\t"<<endl;
     out.close();
 }
@@ -197,7 +197,7 @@ double MC::MoveParticle()
             int pid = new_ag.plist[j];
             Particle p = S.P[pid];
             // Update position and grid
-            p.position = RandomTranslate(p.position,stepsize,gsl_rng_uniform(S.gsl_r),gsl_rng_uniform(S.gsl_r)) + translate_step;
+            p.position = p.position + translate_step;
             XYZ image_position = image(p.position,S.L);
             p.gID = GridIndex_xyz(image_position,S.NGRID,S.GRIDL,S.L);
             new_particles.push_back(p);
@@ -207,11 +207,11 @@ double MC::MoveParticle()
         for(int j=0; j<new_ag.n; j++) {
             int pid = new_ag.plist[j];
             Particle old_particle = S.P[pid];
-            int newgID = old_particle.gID;
+            int oldgID = old_particle.gID;
             int pindex = old_particle.P_ID;
-            for(int k=0; k<S.G[newgID].nbr.size(); k++)
+            for(int k=0; k<S.G[oldgID].nbr.size(); k++)
             {
-                int ngID = S.G[newgID].nbr[k];
+                int ngID = S.G[oldgID].nbr[k];
                 if(S.G[ngID].plist.empty())
                 {
                     continue;
@@ -350,229 +350,71 @@ double MC::MoveParticle()
                     }    
                 }  
             }  
-        }
-
-        // newmolecule.orientation=RandomRotate(S.M[index].orientation,S.MCstep,gsl_rng_uniform(S.gsl_r),gsl_rng_uniform(S.gsl_r),gsl_rng_uniform(S.gsl_r));
-        // newmolecule.UpdateVertices();
-  
-        // int new_hbond=-1;
-        // vector<hbond> new_hbondlist;
-        // double r2_newbond=S.L*S.L;
-        
-        // if (newmolecule.nbonds>0)   //calculate hbond_energy
-        // {
-            
-        //     for(int n=0; n<newmolecule.nbonds; n++)
-        //     {
-        //         double delta_fene=E.hbonde_fene(newmolecule,S.M[newmolecule.hbond_list[n].M2],newmolecule.hbond_list[n].arm1,newmolecule.hbond_list[n].arm2)-E.hbonde_fene(S.M[index],S.M[newmolecule.hbond_list[n].M2],newmolecule.hbond_list[n].arm1,newmolecule.hbond_list[n].arm2);
-        //         double delta_angle=E.hbonde_angle(newmolecule,S.M[newmolecule.hbond_list[n].M2],newmolecule.hbond_list[n].arm1,newmolecule.hbond_list[n].arm2)-E.hbonde_angle(S.M[index],S.M[newmolecule.hbond_list[n].M2],newmolecule.hbond_list[n].arm1,newmolecule.hbond_list[n].arm2);
-        //         double delta_dihedral=E.hbonde_dihedral(newmolecule,S.M[newmolecule.hbond_list[n].M2],newmolecule.hbond_list[n].arm1,newmolecule.hbond_list[n].arm2)-E.hbonde_dihedral(S.M[index],S.M[newmolecule.hbond_list[n].M2],newmolecule.hbond_list[n].arm1,newmolecule.hbond_list[n].arm2);
-        //         delta+=delta_fene+delta_angle+delta_dihedral;
-        //         //cout<<delta<<endl;
-        //     }
-        // }
-        //add wca energy
-        
-        //add new wca
-    //     for(int l=0;l<nbr_g;l++)
-    //     {
-    //         //ID of new neighboring grids
-    //         int temp_gID=S.G[new_gID].nbr[l];
-    //         if(temp_gID>=S.NGRID3)
-    //         {
-    //             cout<<new_gID<<"Error: wrong grid id"<<endl;
-    //             cout<<temp_gID<<endl;
-    //             exit(0);
-    //         }
-    //         if(S.G[temp_gID].plist.empty())
-    //         {
-    //             continue;
-    //         }
-    //         //iterate about molecules in the neighborlist
-    //         list<int>::iterator it;
-    //         for(it=S.G[temp_gID].plist.begin();it!=S.G[temp_gID].plist.end();it++)
-    //         {
-    //             int j=*it;
-    //             if(j!=index)
-    //             {
-    //                 //image distance
-    //                 double rnew2=min_d2(S.M[j].centre,newmolecule.centre,S.L);
-    //                 delta+=E.WCA(rnew2);
-    //                 //find possible new bonds
-    //                 double r2_cm=min_d2(newmolecule.centre,S.M[j].centre,S.L);
-    //                 if (r2_cm<S.search2_cm)//check if the cm distance is in the range, can save time
-    //                 {
-                        
-    //                     //iterate about new molecule vertices
-    //                     for(int k=0;k<newmolecule.N_VER;k++)
-    //                     {
-    //                         //iterate about the neighbor vertices
-    //                         for(int l=0;l<S.M[j].N_VER;l++)
-    //                         {
-    //                             double r2_arms=min_d2(newmolecule.ver[k],S.M[j].ver[l],S.L);
-    //                             XYZ arm1=image(newmolecule.ver[k],S.L);
-    //                             XYZ centre1=image(newmolecule.centre,S.L);
-    //                             XYZ neighborarm1=image(newmolecule.ver[neighborarm(k)],S.L);
-    //                             XYZ arm2=image(S.M[j].ver[l],S.L);
-    //                             XYZ centre2=image(S.M[j].centre,S.L);
-    //                             XYZ neighborarm2=image(S.M[j].ver[neighborarm(l)],S.L);
-                                
-    //                             double alpha=angle_vectors(real_vector(arm1-centre1,S.L),real_vector(arm2-arm1,S.L));
-    //                             double beta=angle_vectors(real_vector(arm2-centre2,S.L),real_vector(arm1-arm2,S.L));
-    //                             double xhi=dihedral_vectors(real_vector(neighborarm1-centre1,S.L),real_vector(centre2-centre1,S.L),real_vector(neighborarm2-centre2,S.L));
-                              
-    //                             //check type, distance between arms, angles and dihedral
-    //                             if (newmolecule.vertype[k]=='A'&&S.M[j].vertype[l]=='A'&&r2_arms<S.sfearchl2_bond&&alpha<S.search_angle&&beta<S.search_angle&& abs(xhi)<S.search_xhi)
-    //                             {
-                                    
-                                    
-    //                                 bool bonded=false;//check if there is already bonds between the two molecules, only one bond can exist between two molecules
-    //                                 for(int n=0;n<old_hbondlist.size();n++)
-    //                                 {
-    //                                     if(old_hbondlist[n].M2==j)
-    //                                     {
-    //                                         bonded=true;
-    //                                     }
-    //                                 }
-    //                                 for(int n=0;n<new_hbondlist.size();n++)
-    //                                 {
-    //                                     if(new_hbondlist[n].M2==j)
-    //                                     {
-    //                                         bonded=true;
-    //                                     }
-    //                                 }
-    //                                 if(bonded==false)
-    //                                 {
-    //                                     new_hbondlist.push_back(hbond(index,j,k,l));
-    //                                     new_hbond=1;
-    //                                 }
-    //                             }
-    //                         }
-    //                     }
-                        
-    //                 }
-
-
-    //             }
-    //         }
-    //     }
-    //     //subtract old wca
-    //     int old_gID=S.M[index].gID;
-    //     for(int l=0;l<nbr_g;l++)
-    //     {
-    //         //ID of new neighboring grids
-    //         int temp_gID=S.G[old_gID].nbr[l];
-    //         list<int>::iterator it;
-    //         for(it=S.G[temp_gID].plist.begin();it!=S.G[temp_gID].plist.end();it++)
-    //         {
-    //             int j=*it;
-    //             if(j!=index)
-    //             {
-    //                 //image distance
-    //                 double rold2=min_d2(S.M[j].centre,S.M[index].centre,S.L);
-    //                 delta-=E.WCA(rold2);
-                    
-
-
-    //             }
-    //         }
-    //     }
-    //     // if(Glauber(delta,gsl_rng_uniform(S.gsl_r)))
-    //     // {
-    //         //Accept move
-    //         S.M[index]=newmolecule;
-    
-    //         accept+=1.0;
-    //         energy+=delta;
-
-    //         //update grid list
-    //         if(new_gID!=old_gID)
-    //         {
-    //             S.G[old_gID].n-=1;
-    //             S.G[old_gID].plist.remove(S.M[index].MOL_ID);
-                
-    //             S.G[new_gID].n+=1;
-    //             S.G[new_gID].plist.push_back(S.M[index].MOL_ID);
-    //         }
-        
-    //         //form bonds if accept
-    //         if (new_hbond!=-1)
-    //         {
-    //             for(int m=0;m<new_hbondlist.size();m++) 
-    //             {
-    //                 S.M[index].hbond_list.push_back(new_hbondlist[m]);
-    //                 S.M[index].vertype[new_hbondlist[m].arm1]='I';
-    //                 S.M[index].nbonds+=1;
-    //                 S.M[new_hbondlist[m].M2].hbond_list.push_back(hbond(new_hbondlist[m].M2,new_hbondlist[m].M1,new_hbondlist[m].arm2,new_hbondlist[m].arm1));
-    //                 S.M[new_hbondlist[m].M2].vertype[new_hbondlist[m].arm2]='I';
-    //                 S.M[new_hbondlist[m].M2].nbonds+=1;
-    //                 out<<"form a hbond"<<setw(12)<<new_hbondlist[m].M1<<setw(12)<<new_hbondlist[m].M2<<setw(12)<<new_hbondlist[m].arm1<<setw(12)<<new_hbondlist[m].arm2<<endl;
-    //                 if(new_hbondlist[m].M1<new_hbondlist[m].M2)
-    //                 {
-    //                     S.H.push_back(new_hbondlist[m]);
-    //                 }
-    //                 else
-    //                 {
-    //                     S.H.push_back(hbond(new_hbondlist[m].M2,new_hbondlist[m].M1,new_hbondlist[m].arm2,new_hbondlist[m].arm1));
-    //                 }
-    //             }
-
-    //         }
-    //     // }
-        
-        
+        }   
     }
-    for(int i=0; i<S.NMOL; i++)
+    if (S.freeroll == 1)
     {
-        index = gsl_rng_uniform_int(S.gsl_r,S.NMOL);
-        Particle new_particle = S.P[index];
-        new_particle.position = RandomTranslate(new_particle.position,S.MCstep,gsl_rng_uniform(S.gsl_r),gsl_rng_uniform(S.gsl_r));
-        XYZ image_position = image(new_particle.position,S.L);
-        new_particle.gID = GridIndex_xyz(image_position,S.NGRID,S.GRIDL,S.L);
-        // Calculate the energy difference and glauber acceptance
-        double delta_energy = 0;
-        Particle old_particle = S.P[index];
-        int oldgID = old_particle.gID;
-        for(int k=0; k<S.G[oldgID].nbr.size(); k++)
+        for(int i=0; i<S.NMOL; i++)
         {
-            int ngID = S.G[oldgID].nbr[k];
-            if(S.G[ngID].plist.empty())
+            index = gsl_rng_uniform_int(S.gsl_r,S.NMOL);
+            Particle new_particle = S.P[index];
+            new_particle.position = RandomTranslate(new_particle.position,S.MCstep,gsl_rng_uniform(S.gsl_r),gsl_rng_uniform(S.gsl_r));
+            XYZ image_position = image(new_particle.position,S.L);
+            new_particle.gID = GridIndex_xyz(image_position,S.NGRID,S.GRIDL,S.L);
+            // Calculate the energy difference and glauber acceptance
+            double delta_energy = 0;
+            Particle old_particle = S.P[index];
+            int oldgID = old_particle.gID;
+            for(int k=0; k<S.G[oldgID].nbr.size(); k++)
             {
-                continue;
+                int ngID = S.G[oldgID].nbr[k];
+                if(S.G[ngID].plist.empty())
+                {
+                    continue;
+                }
+                //iterate about molecules in the neighborlist
+                list<int>::iterator it;
+                for(it=S.G[ngID].plist.begin();it!=S.G[ngID].plist.end();it++)
+                {
+                    int l=*it;
+                    if(l == index)
+                    {
+                        continue;
+                    }
+                    double new_r2 = min_d2(new_particle.position,S.P[l].position,S.L);
+                    double old_r2 = min_d2(old_particle.position,S.P[l].position,S.L);
+                    if (new_r2 < 1)
+                    {
+                        cout << "Too close" << endl;
+                        exit(1);
+                    }
+                    double de = E.total_energy(new_r2) - E.total_energy(old_r2);
+                    delta_energy += de;
+
+                }
             }
-            //iterate about molecules in the neighborlist
-            list<int>::iterator it;
-            for(it=S.G[ngID].plist.begin();it!=S.G[ngID].plist.end();it++)
+            if(Glauber(delta_energy,gsl_rng_uniform(S.gsl_r)))
             {
-                int l=*it;
-                double new_r2 = min_d2(new_particle.position,S.P[l].position,S.L);
-                double old_r2 = min_d2(old_particle.position,S.P[l].position,S.L);
-                double de = E.total_energy(new_r2) - E.total_energy(old_r2);
-                delta_energy += de;
+                accept += 1.0;
+                energy += delta_energy;
+                // First remove particles from their old grids
+                
+            
+                    
+                    
+                // Remove from old grid first
+                S.G[oldgID].n -= 1;
+                S.G[oldgID].plist.remove(index);
+            
 
+                // Then add particles to their new grids
+                
+                S.P[index] = new_particle;
+                // Add to new grid
+                S.G[new_particle.gID].n += 1;
+                S.G[new_particle.gID].plist.push_back(index);
+    
             }
-        }
-        if(Glauber(delta_energy,gsl_rng_uniform(S.gsl_r)))
-        {
-            accept += 1.0;
-            energy += delta_energy;
-            // First remove particles from their old grids
-            
-           
-                
-                
-            // Remove from old grid first
-            S.G[oldgID].n -= 1;
-            S.G[oldgID].plist.remove(index);
-        
-
-            // Then add particles to their new grids
-            
-            S.P[index] = new_particle;
-            // Add to new grid
-            S.G[new_particle.gID].n += 1;
-            S.G[new_particle.gID].plist.push_back(index);
-  
         }
     }
     // for(int i=0; i<S.NGRID3; i++) {
