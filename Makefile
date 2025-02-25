@@ -41,8 +41,8 @@ clean:
 
 # Remove everything that can be regenerated + the final executable
 distclean: clean
-	rm -f $(PROG) *.debug *.txt *.log *.mol2 *.lammpstrj
+	rm -f $(PROG) *.debug *.txt *.log *.mol2 *.lammpstrj *.data
 
 # Remove only runtime artifacts
 rerunclean:
-	rm -f *.debug *.txt *.log *.mol2 *.lammpstrj
+	rm -f *.debug *.txt *.log *.mol2 *.lammpstrj *.data

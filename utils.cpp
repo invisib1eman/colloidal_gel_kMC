@@ -179,11 +179,11 @@ int neighborarm(int n)
 {
   return n+1-2*(n%2);
 }
-vector<Molecule> generate_unitcell(Molecule M1)
-{
+// vector<Molecule> generate_unitcell(Molecule M1)
+// {
 
-}
-vector<Molecule> generate_newunit(vector<Molecule> origin_cell,int latticeindex1,int latticeindex2,int latticeindex3)
-{
+// }
+// vector<Molecule> generate_newunit(vector<Molecule> origin_cell,int latticeindex1,int latticeindex2,int latticeindex3)
+// {
   
-}
+// }

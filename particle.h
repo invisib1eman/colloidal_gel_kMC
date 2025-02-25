@@ -3,7 +3,7 @@
 #include "header.h"
 #include "xyz.h"
 //#include "quarternion.h"
-#include "hbond.h"
+#include "bond.h"
 class Particle
 {
 public:
@@ -12,11 +12,11 @@ public:
     int gID;//grid id
     XYZ position; //Coordinates of vertices
     int nbonds;//number of bonds, 0 or 1 (only for ver)
+    int A_ID;//aggregate id
     
     
         
     
-    vector<hbond> hbond_list;//list of hbonded neighbors and information, size be 0 or 1 (only for ver)
     
     
     Particle() //HARD CODE BASED ON VERTEX INFORMATION,unit length=1nm,arm length=1.1nm
@@ -26,8 +26,8 @@ public:
         Type='O';
         gID=0;
         position.set(0.0,0.0,0.0);
-        hbond_list.clear();
-        
+        P_ID=0;
+        A_ID=0;
     }
 };
 #endif

@@ -13,11 +13,17 @@ int main(int argc, char *argv[])
 	
     System sys;
     sys.ReadInput(argc,argv);
+    
     sys.Create();
-    sys.WriteMol2(0);
+    // sys.WriteMol2(0);
 	
     MC mc;
     mc.S=sys;
+    mc.E.debye_length = sys.debye_length;
+    mc.E.bjerrum_length = sys.bjerrum_length;
+    mc.E.charge = sys.charge;
+    mc.E.L = sys.L;
+    mc.E.R_hardcore = sys.R_hardcore;
     mc.Sweep();
     
 	//Finalize Random number

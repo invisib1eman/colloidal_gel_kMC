@@ -1,0 +1,8 @@
+# ignore trajectories
+data/
+trajectories/
+figures/
+structural_factors/
+logs/
+NANOROD
+*.o

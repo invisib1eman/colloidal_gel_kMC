@@ -22,7 +22,7 @@ void GridLoc(int& i,int& j,int& k,int n,int index);//update xyz index based on g
 int neighborarm(int n);
 //quarternion Rotate(quarternion old,double a,double b,double c);
 XYZ real_vector(XYZ origin,double L);
-vector<Molecule> generate_unitcell(Molecule M1);
-vector<Molecule> generate_newunit(vector<Molecule> origin_cell,int latticeindex1,int latticeindex2,int latticeindex3);
+// vector<Molecule> generate_unitcell(Molecule M1);
+// vector<Molecule> generate_newunit(vector<Molecule> origin_cell,int latticeindex1,int latticeindex2,int latticeindex3);
 
 #endif
