@@ -2,7 +2,7 @@
 PROG := colloidgel
 
 # Source files
-SRC := main.cpp system.cpp utils.cpp mc.cpp quarternion.cpp
+SRC := main.cpp system.cpp utils.cpp mc.cpp
 
 # Object files (same names, but with .o instead of .cpp)
 OBJS := $(SRC:.cpp=.o)
@@ -10,8 +10,7 @@ OBJS := $(SRC:.cpp=.o)
 # The C++ compiler
 CXX := clang++
 
-# Preprocessor flags (includes)
-CPPFLAGS := -I/opt/homebrew/include
+
 
 # C++ compilation flags
 CXXFLAGS := -std=c++11 -g  # add -O3, -Wall, etc. as needed

@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import MDAnalysis as mda
 import freud
 import shutil
+import argparse
+
 # Define calculation for direct structure factor
 
 def compute_sf_for_timestep_Direct(u,ts_index1,ts_index2,bins,reset=False):
@@ -23,34 +25,43 @@ def compute_sf_for_timestep_Direct(u,ts_index1,ts_index2,bins,reset=False):
 # Load trajectory
 
 
-salt_list = [0.9, 1.7, 3, 9, 33, 66, 80]
+# Set up argument parser
+parser = argparse.ArgumentParser(description='Calculate structure factor for a salt concentration')
+parser.add_argument('--salt', type=float, required=True,
+                    help='Salt concentration in mM, e.g. 0.9')
+
+args = parser.parse_args()
+
+# Get salt value from command line argument 
+salt = args.salt
+
+
 runstep = 1000
-for salt in salt_list:
     
-    dataname=f"../data/{salt}mM_Dump.data"
-    trjname=f"../trajectories/{salt}mM_Dump.lammpstrj"
-    desttrjname=f"../trajectories/{salt}mM_Dump.lammpsdump"
-    shutil.copyfile(trjname,desttrjname)
-    # read the trajectory
-    u = mda.Universe(dataname, desttrjname)
-    bins = 30
-    start_index = np.arange(0, 1000, 100)
-    end_index = np.arange(10, 1000+10, 100)
-    for j in range(0,10):
-        sfDirect = compute_sf_for_timestep_Direct(u,start_index[j],end_index[j],bins)
-        #plot and compare debye and direct
-        k_unit = sfDirect.bin_centers / 15
-        plt.plot(k_unit, sfDirect.S_k, label=f"{start_index[j]}")
-        #plt.plot(sfDebye.k_values, sfDebye.S_k, label="Debye")
-        plt.title("Static Structure Factor")
-        plt.xlabel("$k (A^{-1})$")
-        plt.ylabel("$S(k)$")
-        plt.xscale('log')
-        plt.yscale('log')
-        plt.legend()
-        plt.savefig(f"../figures/salt_{salt}_time_{start_index[j]}_end_{end_index[j]}.png")
-        with open(f"../structural_factors/salt_{salt}_time_{start_index[j]}_end_{end_index[j]}.txt",'w') as f:
-            f.write(f"k_unit    S_k\n")
-            for m in range(0,len(k_unit)):
-                f.write(f"{k_unit[m]}   {sfDirect.S_k[m]}\n")
-    plt.clf()
+dataname=f"../data/{salt}mM_Dump.data"
+trjname=f"../trajectories/{salt}mM_Dump.lammpstrj"
+desttrjname=f"../trajectories/{salt}mM_Dump.lammpsdump"
+shutil.copyfile(trjname,desttrjname)
+# read the trajectory
+u = mda.Universe(dataname, desttrjname)
+bins = 30
+start_index = np.arange(0, 1000, 100)
+end_index = np.arange(10, 1000+10, 100)
+for j in range(0,10):
+    sfDirect = compute_sf_for_timestep_Direct(u,start_index[j],end_index[j],bins)
+    #plot and compare debye and direct
+    k_unit = sfDirect.bin_centers / 15
+    plt.plot(k_unit, sfDirect.S_k, label=f"{start_index[j]}")
+    #plt.plot(sfDebye.k_values, sfDebye.S_k, label="Debye")
+    plt.title("Static Structure Factor")
+    plt.xlabel("$k (A^{-1})$")
+    plt.ylabel("$S(k)$")
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.legend()
+    plt.savefig(f"../figures/salt_{salt}_time_{start_index[j]}_end_{end_index[j]}.png")
+    with open(f"../structural_factors/salt_{salt}_time_{start_index[j]}_end_{end_index[j]}.txt",'w') as f:
+        f.write(f"k_unit    S_k\n")
+        for m in range(0,len(k_unit)):
+            f.write(f"{k_unit[m]}   {sfDirect.S_k[m]}\n")
+plt.clf()

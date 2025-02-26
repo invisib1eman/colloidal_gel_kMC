@@ -327,7 +327,7 @@ void System::UpdateGrid()
 }
 void System::writerestart()
 {
-    string filename = "../restart/" + Description + ".restart";
+    string filename = "restart/" + Description + ".restart";
     ofstream out(filename);
     if (!out.is_open()) {
         cout << "Error: Could not open restart file" << endl;
@@ -388,7 +388,7 @@ void System::writerestart()
 }
 void System::readrestart()
 {
-    string filename = "../restart/" + Description + ".restart";
+    string filename = "restart/" + Description + ".restart";
     ifstream in(filename);
     if (!in.is_open()) {
         cout << "Error: Could not open restart file" << endl;

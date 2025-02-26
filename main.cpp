@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     mc.E.well_width = sys.well_width;
     mc.E.well_edge = sys.R_hardcore + sys.well_width;
     mc.Sweep();
-    
+    sys.writerestart();
 	//Finalize Random number
 	gsl_rng_free(sys.gsl_r);
 	time(&end);
