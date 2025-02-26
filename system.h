@@ -42,6 +42,8 @@ class System
     double MCstep; //Step size of translation
     double free_bond_freeenergy=-1;//free bond entropy
     bool freeroll = 1;//1 is true 0 is false
+    bool fake_acceleration = 0;//1 is true 0 is false
+    bool read_restart = 0;//1 is true 0 is false
     void ReadInput(int argc, char *argv[])
     {
         double total_time;
@@ -60,6 +62,8 @@ class System
         ("Description,D", value<string>(&Description)->default_value("nanorod"), "Description (default nanorod)");
         ("well_width,w", value<double>(&well_width)->default_value(0.1), "well width (default 0.1)");
         ("freeroll,f", value<bool>(&freeroll)->default_value(1), "freeroll (default 1)");
+        ("fake_acceleration,a", value<bool>(&fake_acceleration)->default_value(0), "fake acceleration (default 0)");
+        ("read_restart,r", value<bool>(&read_restart)->default_value(0), "read restart (default 0)");
         variables_map vm;
         store(parse_command_line(argc, argv, desc), vm);
         notify(vm);
@@ -109,5 +113,7 @@ class System
     void UpdateGrid();
     void WriteData(int timestep);
     void CreateDump();
+    void writerestart();
+    void readrestart();
 };
 #endif

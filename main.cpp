@@ -13,9 +13,14 @@ int main(int argc, char *argv[])
 	
     System sys;
     sys.ReadInput(argc,argv);
-    
-    sys.Create();
-    // sys.WriteMol2(0);
+    if(sys.read_restart==1)
+    {
+        sys.readrestart();
+    }
+    else
+    {
+        sys.Create();
+    }
 	
     MC mc;
     mc.S=sys;

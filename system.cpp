@@ -325,5 +325,133 @@ void System::UpdateGrid()
         }
     }
 }
+void System::writerestart()
+{
+    string filename = "../restart/" + Description + ".restart";
+    ofstream out(filename);
+    if (!out.is_open()) {
+        cout << "Error: Could not open restart file" << endl;
+        exit(1);
+    }
+
+    // Write number of particles
+    out << NMOL << endl;
+
+    // Write box length
+    out << L << endl;
+
+    // Write particle positions and properties
+    for (int i = 0; i < NMOL; i++) {
+        out << setw(12) << P[i].position.x 
+            << setw(12) << P[i].position.y
+            << setw(12) << P[i].position.z
+            << setw(12) << P[i].P_ID 
+            << setw(12) << P[i].A_ID
+            << setw(12) << P[i].gID << endl;
+    }
+
+    // Write grid information
+    out << NGRID << endl;
+    out << NGRID3 << endl;
+    out << GRIDL << endl;
+
+    // Write grid cell data
+    for (int i = 0; i < NGRID3; i++) {
+        out << setw(12) << G[i].cm.x
+            << setw(12) << G[i].cm.y 
+            << setw(12) << G[i].cm.z;
+        
+        // Write particle list for each grid
+        out << setw(12) << G[i].plist.size();
+        for (auto p : G[i].plist) {
+            out << setw(12) << p;
+        }
+        out << endl;
+    }
+
+    // Write aggregate information
+    out << Ag.size() << endl;
+    for (int i = 0; i < Ag.size(); i++) {
+        out << setw(12) << Ag[i].n  // Number of particles in aggregate
+            << setw(12) << Ag[i].cm.x
+            << setw(12) << Ag[i].cm.y
+            << setw(12) << Ag[i].cm.z << endl;
+        
+        // Write particle IDs in this aggregate
+        for (int j = 0; j < Ag[i].n; j++) {
+            out << setw(12) << Ag[i].plist[j];
+        }
+        out << endl;
+    }
+
+    out.close();
+}
+void System::readrestart()
+{
+    string filename = "../restart/" + Description + ".restart";
+    ifstream in(filename);
+    if (!in.is_open()) {
+        cout << "Error: Could not open restart file" << endl;
+        exit(1);
+    }
+
+    // Read system parameters
+    in >> NMOL;
+    P.resize(NMOL);
+
+    // Read particle data
+    for (int i = 0; i < NMOL; i++) {
+        in >> P[i].position.x 
+           >> P[i].position.y
+           >> P[i].position.z
+           >> P[i].P_ID
+           >> P[i].A_ID
+           >> P[i].gID;
+    }
+
+    // Read grid parameters
+    in >> NGRID;
+    in >> NGRID3;
+    in >> GRIDL;
+
+    // Read grid cell data
+    G.resize(NGRID3);
+    for (int i = 0; i < NGRID3; i++) {
+        in >> G[i].cm.x
+           >> G[i].cm.y
+           >> G[i].cm.z;
+        
+        int plist_size;
+        in >> plist_size;
+        
+        // Read particle list for each grid
+        for (int j = 0; j < plist_size; j++) {
+            int p;
+            in >> p;
+            G[i].plist.push_back(p);
+        }
+    }
+
+    // Read aggregate data
+    int n_aggregates;
+    in >> n_aggregates;
+    Ag.resize(n_aggregates);
+    
+    for (int i = 0; i < n_aggregates; i++) {
+        in >> Ag[i].n
+           >> Ag[i].cm.x
+           >> Ag[i].cm.y
+           >> Ag[i].cm.z;
+
+        // Read particle IDs in this aggregate
+        Ag[i].plist.resize(Ag[i].n);
+        for (int j = 0; j < Ag[i].n; j++) {
+            in >> Ag[i].plist[j];
+        }
+    }
+
+    in.close();
+    
+}
 
 
