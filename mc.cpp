@@ -11,8 +11,6 @@ void ValidateGrid(const Grid& g, int gridIndex) {
 
 void MC::Sweep()
 {
-    // Pnew=S.P;
-    // E.L=S.L;
     S.WriteDump(0);
     S.WriteData(0);
     double accept=0.0;
@@ -20,9 +18,6 @@ void MC::Sweep()
     int nsample = S.nsweep/1000;
     if(nsample<1)
       nsample=1;
-    
-    // energy=TotalEnergy();
-   
     
     WriteTemplate();
 	LogProfile(0,accept);
@@ -36,17 +31,12 @@ void MC::Sweep()
         {
             
             LogProfile(i,accept);
-            // WriteEnergy(i);
-            // S.WriteMol2(i);
             S.WriteDump(i);
-            // S.WriteBond(i);
-            // S.WriteGrid(i);
             accept=0.0;
         }
     }
 	
    
-   // S.WriteMol2(S.nsweep);
    S.WriteDump(S.nsweep);
 }
 
@@ -73,115 +63,12 @@ void MC::LogProfile(int i, double accept)
 //Returns acceptance fraction
 double MC::MoveParticle()
 {
-    
-
-    
-
-    //check if the total particle in the celllists add to N
-    
-    //check if the aggregate particle number is right
-    // int total_particles_ag=0;
-    // for(int i=0; i<S.Ag.size(); i++)
-    // {
-    //     if(S.Ag[i].n != S.Ag[i].plist.size())
-    //     {
-    //         cout<<"Aggregate particle number wrong"<<endl;
-    //         exit(0);
-    //     }
-    //     total_particles_ag+=S.Ag[i].n;
-    // }
-    // if(total_particles_ag!=S.NMOL)
-    // {
-    //     cout<<"Total aggregate particle number wrong"<<endl;
-    //     exit(0);
-    // }
-    // ofstream out;
-    // out.open("events.txt",ios::app);
-    // ofstream out2;
-    // out2.open("Error.txt",ios::app);
- 
     double accept=0.0;//accept events
-    
-    // int N_break;
-    // int index;
-    // double delta;
-    // //break bonds
-    // double rand=gsl_rng_uniform(S.gsl_r);
-    // if(rand<S.omega_B);//the relative frequency of breaking bond to frequency of diffusion step
-    // {
-    // for(it=S.H.begin();it!=S.H.end();)
-    // {
-    //     hbond old_hbond=*it;
-    //     //calculate bond_dissociation energy
-    //     double E_dis=0;
-    //     int free_bonds=0;
-    //     E_dis+=S.E_1;//the basic enthalpy change of one bond
-    //     //count # of freed bonds
-    //     //find neighbor arms,first the one of M1, then the one of M2
-    //     int neighborarm1=neighborarm(old_hbond.arm1);
-    //     free_bonds+=2;
-    //     int bonded_index1;
-    //     vector<hbond> old_hbondlist=S.M[old_hbond.M1].hbond_list;
-    //     for(int p=0;p<old_hbondlist.size();p++)
-    //     {
-    //         if(old_hbondlist[p].arm1==neighborarm1)
-    //         {
-    //             free_bonds-=2;
-    //         }
-    //         if(old_hbondlist[p].arm1==old_hbond.arm1)
-    //         {
-    //             bonded_index1=p;
-    //         }
-    //     } 
-    //     int neighborarm2=neighborarm(old_hbond.arm2);
-    //     free_bonds+=2;
-    //     vector<hbond> bonded_neighbor_hbondlist=S.M[old_hbond.M2].hbond_list;
-    //     int bonded_index2;
-    //     for(int p=0;p<bonded_neighbor_hbondlist.size();p++)
-    //     {
-    //         if(bonded_neighbor_hbondlist[p].arm1==neighborarm2)
-    //         {
-    //             free_bonds-=2;
-    //         }
-    //         if(bonded_neighbor_hbondlist[p].arm1==old_hbond.arm2)
-    //         {
-    //             bonded_index2=p;
-    //         }
-    //     }                 
-    //     E_dis+=free_bonds*S.free_bond_freeenergy;
-            
-    //     if(Arrhenius(1,E_dis,gsl_rng_uniform(S.gsl_r)))
-    //     {
-    //         //break bond
-    //         S.M[old_hbond.M1].vertype[old_hbond.arm1]='A';
-    //         out<<"Break bond"<<setw(12)<<old_hbond.M1<<setw(12)<<old_hbond.M2<<setw(12)<<old_hbond.arm1<<setw(12)<<old_hbond.arm2<<endl;
-    //         S.M[old_hbond.M1].hbond_list[bonded_index1]=S.M[old_hbond.M1].hbond_list.back();
-    //         S.M[old_hbond.M1].nbonds-=1;
-            
-    //         S.M[old_hbond.M1].hbond_list.pop_back();
-    //         S.M[old_hbond.M2].vertype[old_hbond.arm2]='A';
-            
-    //         S.M[old_hbond.M2].hbond_list[bonded_index2]=S.M[old_hbond.M2].hbond_list.back();
-    //         S.M[old_hbond.M2].nbonds-=1;
-            
-    //         S.M[old_hbond.M2].hbond_list.pop_back();
-    //         it=S.H.erase(it);
-                
-    //     }
-    //     else{
-    //         ++it;
-    //     }
-    // }
-    // }
-    //diffusion rotation
-    //diffusion translation
-    //diffusion limited bond formation
     int index;
     int N_ag_start = S.Ag.size();
     double rand = gsl_rng_uniform(S.gsl_r);
     if(rand > S.p_crawl)
     {
-        
         for(int i = 0; i < N_ag_start; i++)
         {
             int N_ag = S.Ag.size();
@@ -252,9 +139,6 @@ double MC::MoveParticle()
             {
                 accept += 1.0;
                 S.Ag[index] = new_ag;
-                // XYZ image_center = image(new_ag.cm,S.L);
-                // Move particles in the aggregate
-                
                 // First remove particles from their old grids
                 for(int j=0; j<new_ag.n; j++) {
                     int pid = new_ag.plist[j];
@@ -285,11 +169,6 @@ double MC::MoveParticle()
                     for(int k=0; k<S.G[newgID].nbr.size(); k++)
                     {
                         int ngID = S.G[newgID].nbr[k];
-                        // if(ngID < 0 || ngID >= S.NGRID3) 
-                        // {
-                        //     cout << "Invalid neighbor grid ID: " << ngID << endl;
-                        //     exit(1);
-                        // }
                         if(S.G[ngID].plist.empty())
                         {
                             continue;
@@ -308,13 +187,6 @@ double MC::MoveParticle()
                             double r2 = min_d2(new_particles[j].position,S.P[l].position,S.L);
                             if(r2<S.search2_cm)
                             {
-                                // if(A_ID1 < 0 || A_ID1 >= S.Ag.size() ||
-                                //    A_ID2 < 0 || A_ID2 >= S.Ag.size()) {
-                                //     cout << "Invalid aggregate IDs during merge: " << A_ID1 
-                                //          << " " << A_ID2 << " " << S.Ag.size() << endl;
-                                //     exit(1);
-                                // }
-
                                 // Store the particle list from the old aggregate before any modifications
                                 vector<int> old_ag_particles = S.Ag[A_ID2].plist;
                                 
@@ -343,19 +215,9 @@ double MC::MoveParticle()
                                 // Update A_IDs for all particles that were in aggregates after A_ID2
                                 for(int n=0; n<S.NMOL; n++) 
                                 {
-                                    // if (S.P[n].A_ID == A_ID2)
-                                    // {
-                                    //     cout<<"Error: particle "<<n<<" is in the old aggregate "<<A_ID2<<endl;
-                                    //     exit(1);
-                                    // }
                                     if(S.P[n].A_ID > A_ID2) 
                                     {
                                         S.P[n].A_ID -= 1;
-                                        // if(S.P[n].A_ID >= S.Ag.size())
-                                        // {
-                                        //     cout<<"Error: particle "<<n<<" AID exceeds limit "<<S.P[n].A_ID<<endl;
-                                        //     exit(1);
-                                        // }
                                     }   
                                 }    
                             }
@@ -436,10 +298,6 @@ double MC::MoveParticle()
             
         }
     }
-    // for(int i=0; i<S.NGRID3; i++) {
-    //     ValidateGrid(S.G[i], i);
-    // }
-
     return accept/double(S.NMOL);
 }
 bool MC::Glauber(double delta, double rand)
@@ -455,122 +313,3 @@ bool MC::Glauber(double delta, double rand)
     }
     
 }
-// bool MC::Arrhenius(double A,double delta, double rand)
-// {
-    
-//     if(A*(exp(-delta))>rand)
-//         {
-//         return true;}
-//     else
-//         return false;
-    
-    
-// }
-// double MC::WCAEnergy()
-// {
-//     double ewca=0;
-//     list<int>::iterator it;
-//     for(int i=0;i<S.NMOL;i++)
-//     {
-//         int old_gID=S.M[i].gID;
-//         for(int l=0;l<nbr_g;l++)
-//         {
-//             //ID of new neighboring grids
-//             int temp_gID=S.G[old_gID].nbr[l];
-            
-//             for(it=S.G[temp_gID].plist.begin();it!=S.G[temp_gID].plist.end();it++)
-//             {
-//                 int j=*it;
-//                 if(j>i)//avoid double counting
-//                 {
-//                     //image distance
-//                     double r2=min_d2(S.M[j].centre,S.M[i].centre,S.L);
-//                     ewca+=E.WCA(r2);
-                    
-
-
-//                 }
-//             }
-//         }
-//     }
-//     return ewca;
-// }
-// // double MC::FENE_energy()
-// {
-//     double efene=0;
-//     list<hbond>::iterator it;
-//     for(it=S.H.begin();it!=S.H.end();it++)
-//     {
-//         hbond j=*it;
-//         efene+=E.hbonde_fene(S.M[j.M1],S.M[j.M2],j.arm1,j.arm2);
-//     }
-//     return efene;
-// }
-// double MC::Angle_energy()
-// {
-//     double eangle=0;
-//     list<hbond>::iterator it;
-//     for(it=S.H.begin();it!=S.H.end();it++)
-//     {
-//         hbond j=*it;
-//         eangle+=E.hbonde_angle(S.M[j.M1],S.M[j.M2],j.arm1,j.arm2);
-//     }
-//     return eangle;
-// }
-// double MC::Dihedral_energy()
-// {
-//     double edihedral=0;
-//     list<hbond>::iterator it;
-//     for(it=S.H.begin();it!=S.H.end();it++)
-//     {
-//         hbond j=*it;
-//         edihedral+=E.hbonde_dihedral(S.M[j.M1],S.M[j.M2],j.arm1,j.arm2);
-//     }
-//     return edihedral;   
-// }
-// double MC::bond_energy()
-// {
-//     double ebond;
-//     ebond=-S.H.size()*S.E_1;
-//     return ebond;
-// }
-// double MC::bond_freeze_freenerngy()
-// {
-//     double efreeze;
-//     int nfreeze;
-//     for(int i=0;i<S.NMOL;i++)
-//     {
-//         Molecule m=S.M[i];
-//         for(int l=0;l<m.N_VER;l++)
-//         {
-//             if(m.vertype[l]=='I'||m.vertype[neighborarm(l)]=='I')
-//             nfreeze+=1;
-
-//         }
-//     }
-//     efreeze=nfreeze*S.free_bond_freeenergy;
-// }
-// double MC::TotalEnergy()
-// {
-//     double totalenergy=0.0;
-//     /*for(int i;i<S.NMOL;i++)
-//     {
-//         for(int j=0;j<S.M[i].nbonds;j++)
-//         {
-//             totalenergy+=E.hbonde(S.M[i],S.M[S.M[i].hbond_list[j].M2],j);
-//             //totalenergy+=E.LJ(S.M[i],S.M[j]);
-//         }
-        
-//     }*/
-//     return totalenergy;
-// }
-// double MC::WriteEnergy(int timestep)
-// {
-//     ofstream out;
-//     out.open("energy.txt",ios::app);
-//     out<<"TIMESTEP"<<endl;
-//     out<<timestep<<endl;
-//     out<<"WCA"<<'\t'<<"FENE"<<'\t'<<"Angle"<<'\t'<<"Dihedral"<<'\t'<<"Bond"<<'\t'<<"Bond_freeze"<<endl;
-//     out<<WCAEnergy()<<'\t'<<FENE_energy()<<'\t'<<Angle_energy()<<'\t'<<Dihedral_energy()<<'\t'<<bond_energy()<<'\t'<<bond_freeze_freenerngy()<<endl;
-//     out.close();
-// }

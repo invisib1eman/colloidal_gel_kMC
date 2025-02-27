@@ -14,8 +14,6 @@ class System
     vector<Particle> P; //List of molecules
     vector<Aggregate> Ag;
     vector<Grid> G;//grid list
-    //list<Aggregate> Ag;//list of aggregates
-    
     int NGRID,NGRID3;//NGRID=#cell in one direction, NGRID3=total # of cells of grid, NCELL=#particles per cell
     double NCELL;
     double GRIDL;//Grid length in one direction
@@ -23,8 +21,7 @@ class System
     gsl_rng * gsl_r;
     string Description;
     int NMOL; //Number of molecules
-    //volume fraction 3%
-
+    //volume fraction 6% (core+shell)
     double R=1;//radius = 8nm
     double R_hardcore = 1.15;//hardcore radius = 1.15*8 nm
     double charge = 12.6;//charge of the molecule

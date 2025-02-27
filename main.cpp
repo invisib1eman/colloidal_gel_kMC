@@ -3,27 +3,21 @@
 #include "system.h"
 #include "mc.h"
 
-
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
+    time_t start, end;
+    time(&start);
     
-    
-	time_t start, end;
-	time(&start);
-	
     System sys;
     sys.ReadInput(argc,argv);
-    if(sys.read_restart==1)
-    {
+    if(sys.read_restart==1) {
         sys.readrestart();
-    }
-    else
-    {
+    } else {
         sys.Create();
     }
-	
+    
     MC mc;
     mc.S=sys;
+    // Pass parameters from sys to energy class
     mc.E.debye_length = sys.debye_length;
     mc.E.bjerrum_length = sys.bjerrum_length;
     mc.E.charge = sys.charge;
@@ -33,15 +27,10 @@ int main(int argc, char *argv[])
     mc.E.well_edge = sys.R_hardcore + sys.well_width;
     mc.Sweep();
     sys.writerestart();
-	//Finalize Random number
-	gsl_rng_free(sys.gsl_r);
-	time(&end);
-	cout<<"Time Elapsed="<<difftime(end,start)<<endl;
+    
+    //Finalize Random number
+    gsl_rng_free(sys.gsl_r);
+    time(&end);
+    cout<<"Time Elapsed="<<difftime(end,start)<<endl;
     return 0;
-    /*
-   XYZ a=quarterrotation(XYZ(1.0,0.0,-0.47),quarternion(0.899125,0.28284,0.290824,-0.164306));
-   cout<<a.x<<endl;
-   cout<<a.y<<endl;
-   cout<<a.z<<endl;
-   return 0;*/
 }

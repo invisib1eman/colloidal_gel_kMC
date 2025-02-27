@@ -1,5 +1,6 @@
 //NANOROD: system.cpp System Class Function Definitions (Revision Date: Oct 27, 2023)
 #include "system.h"
+
 void System::Create()
 {
     cout<<NMOL<<endl;
