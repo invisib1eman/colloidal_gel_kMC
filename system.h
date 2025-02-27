@@ -44,6 +44,8 @@ class System
     bool freeroll = 1;//1 is true 0 is false
     bool fake_acceleration = 0;//1 is true 0 is false
     bool read_restart = 0;//1 is true 0 is false
+    double tau_crawl = 100; // crawl time scale is 100*dt
+    double p_crawl = (1.0/tau_crawl)/(1.0/tau_crawl+1.0); // probability of crawl
     void ReadInput(int argc, char *argv[])
     {
         double total_time;
@@ -64,6 +66,7 @@ class System
         ("freeroll,f", value<bool>(&freeroll)->default_value(1), "freeroll (default 1)");
         ("fake_acceleration,a", value<bool>(&fake_acceleration)->default_value(0), "fake acceleration (default 0)");
         ("read_restart,r", value<bool>(&read_restart)->default_value(0), "read restart (default 0)");
+        ("tau_crawl,t", value<double>(&tau_crawl)->default_value(100), "crawl time scale (default 100)");
         variables_map vm;
         store(parse_command_line(argc, argv, desc), vm);
         notify(vm);
@@ -85,7 +88,7 @@ class System
         //real time scale is MCstep*MCstep*(1/12)*((8*10**-9)**2)/(3.40691*10^-11)s=1.56545*10^-9s
         nsweep=int(ceil(total_time/deltat));
         NGRID3=NGRID*NGRID*NGRID;
-        
+        p_crawl = (1.0/tau_crawl)/(1.0/tau_crawl+1.0);
     try
     {
       G.reserve(NGRID3);
