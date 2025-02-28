@@ -187,13 +187,14 @@ double MC::MoveParticle()
         }
         index = gsl_rng_uniform_int(S.gsl_r,N_ag);
         Aggregate new_ag = S.Ag[index];
-        if (S.fake_acceleration == 0)
+        double stepsize;
+	if (S.fake_acceleration == 0)
         {
-            double stepsize = S.MCstep/pow(new_ag.n,1.0/3.0);
+            stepsize = S.MCstep/pow(new_ag.n,1.0/3.0);
         }
         else
         {
-            double stepsize = S.MCstep;
+            stepsize = S.MCstep;
         }
         XYZ translate_step = RandomTranslate(XYZ(0,0,0),stepsize,gsl_rng_uniform(S.gsl_r),gsl_rng_uniform(S.gsl_r));
         new_ag.cm = translate_step + new_ag.cm;

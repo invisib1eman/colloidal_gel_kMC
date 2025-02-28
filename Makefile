@@ -2,25 +2,22 @@
 PROG := colloidgel
 
 # Source files
-SRC := main.cpp system.cpp utils.cpp mc.cpp quarternion.cpp
+SRC := main.cpp system.cpp utils.cpp mc.cpp
 
 # Object files (same names, but with .o instead of .cpp)
 OBJS := $(SRC:.cpp=.o)
 
 # The C++ compiler
-CXX := clang++
+CXX := g++
 
-# Preprocessor flags (includes)
-CPPFLAGS := -I/opt/homebrew/include
 
 # C++ compilation flags
 CXXFLAGS := -std=c++11 -g  # add -O3, -Wall, etc. as needed
-CXXFLAGS += -I/opt/homebrew/include  # For Homebrew installations
-
+CXXFLAGS += -I/scratch/tacc/apps/gcc11_2/boost/1.86.0/include  # For Homebrew installations
+CXXFLAGS += -I/scratch/tacc/apps/gcc11_2/gsl/2.8/include  # For Homebrew installations
 # Linker flags (library search paths, RPATHs, etc.)
-LDFLAGS := -L/opt/homebrew/lib
-LDFLAGS += -L/usr/local/lib -lgsl -lgslcblas -lboost_program_options
-
+LDFLAGS := -L/scratch/tacc/apps/gcc11_2/gsl/2.8/lib
+LDFLAGS += -L/scratch/tacc/apps/gcc11_2/boost/1.86.0/lib
 # Libraries to link against
 LDLIBS := -lboost_program_options -lgsl -lgslcblas -lm
 
