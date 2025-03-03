@@ -228,7 +228,7 @@ void System::WriteData(int timestep)
     {   
         im_centre = image(P[i].position,L);
         // Format: atom-ID atom-type x y z
-        out << i+1 << " " << 1 << " " 
+        out << i+1 << " " << i+1 << " " << 1 << " " 
             << fixed << setprecision(6) << im_centre.x << " " 
             << im_centre.y << " " 
             << im_centre.z << endl;
