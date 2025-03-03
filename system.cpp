@@ -1,5 +1,6 @@
 //NANOROD: system.cpp System Class Function Definitions (Revision Date: Oct 27, 2023)
 #include "system.h"
+
 void System::Create()
 {
     cout<<NMOL<<endl;
@@ -227,7 +228,7 @@ void System::WriteData(int timestep)
     {   
         im_centre = image(P[i].position,L);
         // Format: atom-ID atom-type x y z
-        out << i+1 << " " << 1 << " " 
+        out << i+1 << " " << i+1 << " " << 1 << " " 
             << fixed << setprecision(6) << im_centre.x << " " 
             << im_centre.y << " " 
             << im_centre.z << endl;
@@ -327,7 +328,7 @@ void System::UpdateGrid()
 }
 void System::writerestart()
 {
-    string filename = "../restart/" + Description + ".restart";
+    string filename = "restart/" + Description + ".restart";
     ofstream out(filename);
     if (!out.is_open()) {
         cout << "Error: Could not open restart file" << endl;
@@ -388,7 +389,7 @@ void System::writerestart()
 }
 void System::readrestart()
 {
-    string filename = "../restart/" + Description + ".restart";
+    string filename = "restart/" + Description + ".restart";
     ifstream in(filename);
     if (!in.is_open()) {
         cout << "Error: Could not open restart file" << endl;
