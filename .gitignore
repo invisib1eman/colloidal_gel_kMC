@@ -1,5 +1,6 @@
 # ignore trajectories
 build/
+bin/
 data/
 MPM_traj/
 trajectories/
@@ -7,6 +8,5 @@ figures/
 structural_factors/
 restart/
 logs/
-NANOROD
 *.o
 colloidgel

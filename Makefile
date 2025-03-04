@@ -45,3 +45,4 @@ distclean: clean
 # Remove only runtime artifacts
 rerunclean:
 	rm -f *.debug *.txt *.log *.mol2 *.lammpstrj *.data
+# Install
