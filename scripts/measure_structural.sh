@@ -1,5 +1,5 @@
 mamba activate porous
-salt_list=(1.7)
+salt_list=(1.7 3 9 80)
 step=0.1
 N=8000
 L=100
