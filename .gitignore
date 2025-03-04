@@ -1,4 +1,5 @@
 # ignore trajectories
+build/
 data/
 MPM_traj/
 trajectories/
