@@ -166,14 +166,14 @@ void System::Create()
 // }
 void System::CreateDump()
 {
-    string FileName = "trajectories/" + Description + "_Dump.lammpstrj";
+    string FileName = dump_file_name;
     ofstream out;
     out.open(FileName,ios::trunc);
     out.close();
 }
 void System::WriteDump(int timestep)
 {
-    string FileName = "trajectories/" + Description + "_Dump.lammpstrj";
+    string FileName = dump_file_name;
     ofstream out;
     out.open(FileName,ios::app);
     
@@ -202,7 +202,7 @@ void System::WriteDump(int timestep)
 }
 void System::WriteData(int timestep)
 {
-    string FileName = "data/" + Description + "_Dump.data";
+    string FileName = data_file_name;
     ofstream out;
     out.open(FileName,ios::trunc);
     
@@ -328,7 +328,7 @@ void System::UpdateGrid()
 }
 void System::writerestart()
 {
-    string filename = "restart/" + Description + ".restart";
+    string filename = restart_file_name;
     ofstream out(filename);
     if (!out.is_open()) {
         cout << "Error: Could not open restart file" << endl;
@@ -389,7 +389,7 @@ void System::writerestart()
 }
 void System::readrestart()
 {
-    string filename = "restart/" + Description + ".restart";
+    string filename = read_restart_file_name;
     ifstream in(filename);
     if (!in.is_open()) {
         cout << "Error: Could not open restart file" << endl;

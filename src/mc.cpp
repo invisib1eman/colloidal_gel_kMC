@@ -42,7 +42,7 @@ void MC::Sweep()
 
 void MC::WriteTemplate()
 {
-    string FileName = "logs/" + S.Description + "_MC.log";
+    string FileName = S.log_file_name;
     ofstream out;
     out.open(FileName,ios::trunc);
     out<<setw(12)<<"sweep"<<"\t"<<setw(12)<<"time"<<"\t"<<setw(12)<<"N_clusters"<<setw(12)<<"Accept"<<"\t"<<endl;
@@ -51,7 +51,7 @@ void MC::WriteTemplate()
 
 void MC::LogProfile(int i, double accept)
 {
-    string FileName = "logs/" + S.Description + "_MC.log";
+    string FileName = S.log_file_name;
     ofstream out;
     out.open(FileName, ios::app);
     out<<setw(12)<<i<<"\t"<<setw(12)<<time<<"\t"<<setw(12)<<S.Ag.size()<<setw(12)<<accept<<"\t"<<endl;

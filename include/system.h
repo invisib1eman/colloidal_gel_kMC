@@ -43,6 +43,11 @@ class System
     bool read_restart = 0;//1 is true 0 is false
     double tau_crawl = 100; // crawl time scale is 100*dt
     double p_crawl = (1.0/tau_crawl)/(1.0/tau_crawl+1.0); // probability of crawl
+    string dump_file_name;
+    string read_restart_file_name;
+    string restart_file_name;
+    string data_file_name;
+    string log_file_name;
     void ReadInput(int argc, char *argv[])
     {
         double total_time;
@@ -58,12 +63,18 @@ class System
         ("MCstep,m", value<double>(&MCstep)->default_value(0.1), "MC step size (default 0.1)")// fluctuation is 0.8 nm
         ("GSL_SEED,g", value<int>(&GSL_SEED)->default_value(10), "seed for the RNG (default 10)")
         ("debye_length,d", value<double>(&debye_length)->default_value(0.91875), "debye length (default 0.91875)")
-        ("Description,D", value<string>(&Description)->default_value("nanorod"), "Description (default nanorod)");
-        ("well_width,w", value<double>(&well_width)->default_value(0.1), "well width (default 0.1)");
-        ("freeroll,f", value<bool>(&freeroll)->default_value(1), "freeroll (default 1)");
-        ("fake_acceleration,a", value<bool>(&fake_acceleration)->default_value(0), "fake acceleration (default 0)");
-        ("read_restart,r", value<bool>(&read_restart)->default_value(0), "read restart (default 0)");
-        ("tau_crawl,t", value<double>(&tau_crawl)->default_value(100), "crawl time scale (default 100)");
+        ("Description,D", value<string>(&Description)->default_value("nanorod"), "Description (default nanorod)")
+        ("well_width,w", value<double>(&well_width)->default_value(0.1), "well width (default 0.1)")
+        ("freeroll,f", value<bool>(&freeroll)->default_value(1), "freeroll (default 1)")
+        ("fake_acceleration,a", value<bool>(&fake_acceleration)->default_value(0), "fake acceleration (default 0)")
+        ("read_restart,r", value<bool>(&read_restart)->default_value(0), "read restart (default 0)")
+
+        ("tau_crawl,tcrawl", value<double>(&tau_crawl)->default_value(100), "crawl time scale (default 100)")
+        ("dump_file_name,dump", value<string>(&dump_file_name)->default_value("dump.xyz"), "dump file name (default dump.xyz)")
+        ("restart_file_name,restart", value<string>(&restart_file_name)->default_value("restart.xyz"), "restart file name (default restart.xyz)")
+        ("read_restart_file_name,read_restart", value<string>(&read_restart_file_name)->default_value("restart.xyz"), "read restart file name (default restart.xyz)")
+        ("data_file_name,data", value<string>(&data_file_name)->default_value("data.xyz"), "data file name (default data.xyz)")
+        ("log_file_name,log", value<string>(&log_file_name)->default_value("log.txt"), "log file name (default log.txt)");
         variables_map vm;
         store(parse_command_line(argc, argv, desc), vm);
         notify(vm);

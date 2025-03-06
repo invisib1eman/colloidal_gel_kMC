@@ -25,9 +25,11 @@ def compute_sf_for_timestep_Direct(u: mda.Universe, ts_index1: int, ts_index2: i
     """
     ts = u.trajectory[ts_index1]
     box = ts.dimensions[:3]
-    deltak = 4*np.pi/box[0]
-    k_max = (bins+0.5)*deltak
-    k_min = 0.5*deltak
+    # make deltak finer: np.pi/box[0]
+    deltak = np.pi/box[0]
+    k_min = 4*deltak
+    k_max = (bins)*deltak + k_min
+    
     
     sfDirect = freud.diffraction.StaticStructureFactorDirect(bins=bins, k_max=k_max, k_min=k_min)
     
@@ -54,21 +56,26 @@ def parse_arguments() -> argparse.Namespace:
                        help='Tau crawl parameter')
     parser.add_argument('--freeroll', type=bool, required=True,
                        help='Whether the simulation is freeroll')
+    
     return parser.parse_args()
 def load_trajectory(salt: float, step_size: float, n_particles: int, box_length: float, total_time: float, tau_crawl: float, freeroll: bool) -> mda.Universe:
     """Load trajectory files and return MDAnalysis Universe"""
+    if salt == int(salt):
+        salt = int(salt)
     if freeroll:
-        dataname = f"../data/{salt}mM_freeroll_step{step_size}_N_{n_particles}_L_{box_length:.0f}_t_{total_time:.0f}_taucrawl_{tau_crawl:.0f}_Dump.data"
-        trjname = f"../trajectories/{salt}mM_freeroll_step{step_size}_N_{n_particles}_L_{box_length:.0f}_t_{total_time:.0f}_taucrawl_{tau_crawl:.0f}_Dump.lammpstrj"
-        desttrjname = f"../trajectories/{salt}mM_freeroll_step{step_size}_N_{n_particles}_L_{box_length:.0f}_t_{total_time:.0f}_taucrawl_{tau_crawl:.0f}_Dump.lammpsdump"
+        dataname = f"../../data/{salt}mM_freeroll_step{step_size}_N_{n_particles}_L_{box_length:.0f}_t_{total_time:.0f}_taucrawl_{tau_crawl:.0f}.data"
+        trjname = f"../../trajectories/{salt}mM_freeroll_step{step_size}_N_{n_particles}_L_{box_length:.0f}_t_{total_time:.0f}_taucrawl_{tau_crawl:.0f}.lammpstrj"
+        desttrjname = f"../../trajectories/{salt}mM_freeroll_step{step_size}_N_{n_particles}_L_{box_length:.0f}_t_{total_time:.0f}_taucrawl_{tau_crawl:.0f}.lammpsdump"
         if os.path.exists(trjname):
             shutil.move(trjname, desttrjname)
     return mda.Universe(dataname, desttrjname)
 
-def save_structure_factors(u: mda.Universe, salt: float, step_size: float, n_particles: int, box_length: float, total_time: float, tau_crawl: float, freeroll: bool, bins: int = 30) -> None:
+def save_structure_factors(u: mda.Universe, salt: float, step_size: float, n_particles: int, box_length: float, total_time: float, tau_crawl: float, freeroll: bool, bins: int = 100) -> None:
     """Calculate, plot and save structure factors for different time windows"""
     start_index = np.arange(0, 1000, 100)
     end_index = np.arange(10, 1000+10, 100)
+    if salt == int(salt):
+        salt = int(salt)
     if freeroll:
         nameprefix = f"{salt}mM_freeroll_step{step_size}_N_{n_particles}_L_{box_length:.0f}_t_{total_time:.0f}_taucrawl_{tau_crawl:.0f}"
     # Create DataFrame to store structure factors
@@ -95,8 +102,8 @@ def save_structure_factors(u: mda.Universe, salt: float, step_size: float, n_par
         plt.legend()
     
         # Save figure
-        plt.savefig("../figures/"+nameprefix+f"_start{start_index[j]}_end{end_index[j]}.png", dpi=300, bbox_inches='tight')
-        plt.close()
+        plt.savefig("../../figures/"+nameprefix+f"_start{start_index[j]}_end{end_index[j]}_finer.png", dpi=300, bbox_inches='tight')
+    plt.close()
     
     # Save structure factor data
     for i, data in enumerate(sf_data):
@@ -104,7 +111,7 @@ def save_structure_factors(u: mda.Universe, salt: float, step_size: float, n_par
             'k_values': data['k_values'],
             'S_k': data['S_k']
         })
-        df.to_csv("../structural_factors/"+nameprefix+f"_start{start_index[i]}_end{end_index[i]}.csv", index=False)
+        df.to_csv("../../structural_factors/"+nameprefix+f"_start{start_index[i]}_end{end_index[i]}_finer.csv", index=False)
 
 
 
@@ -113,7 +120,7 @@ def main():
     args = parse_arguments()
     
     # Create output directories if they don't exist
-    for dir_path in ['../figures', '../data']:
+    for dir_path in ['../../figures', '../../data']:
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
     
