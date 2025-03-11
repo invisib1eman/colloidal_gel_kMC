@@ -64,7 +64,7 @@ class System
         ("GSL_SEED,g", value<int>(&GSL_SEED)->default_value(10), "seed for the RNG (default 10)")
         ("debye_length,d", value<double>(&debye_length)->default_value(0.91875), "debye length (default 0.91875)")
         ("Description,D", value<string>(&Description)->default_value("nanorod"), "Description (default nanorod)")
-        ("well_width,w", value<double>(&well_width)->default_value(0.1), "well width (default 0.1)")
+        ("well_width,w", value<double>(&well_width)->default_value(0.05), "well width (default 0.05)")
         ("freeroll,f", value<bool>(&freeroll)->default_value(1), "freeroll (default 1)")
         ("fake_acceleration,a", value<bool>(&fake_acceleration)->default_value(0), "fake acceleration (default 0)")
         ("read_restart,r", value<bool>(&read_restart)->default_value(0), "read restart (default 0)")
