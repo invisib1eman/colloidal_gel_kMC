@@ -128,7 +128,7 @@ double MC::MoveParticle()
                         }
                         double new_r2 = min_d2(new_particles[j].position,S.P[l].position,S.L);
                         double old_r2 = min_d2(old_particle.position,S.P[l].position,S.L);
-                        double de = E.Debye_Huckel(new_r2) - E.Debye_Huckel(old_r2);
+                        double de = E.total_energy(new_r2) - E.total_energy(old_r2);
                         delta_energy += de;
 
                     }
@@ -306,6 +306,7 @@ bool MC::Glauber(double delta, double rand)
         return false;
     else
     {
+        // probability of accepting the move is 1/(exp(delta)+1)
         if(1.0/(exp(delta)+1.0)>rand)
             return true;
         else

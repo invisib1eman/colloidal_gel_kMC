@@ -94,9 +94,14 @@ class System
         deltat=1.0/12.0*MCstep*MCstep;
         // D = kT / 6πηa = 4.11×10−21/(6*pi*8*10**-9*0.8*10**-3)=3.40691*10^-11m^2/s
         //real time scale is MCstep*MCstep*(1/12)*((8*10**-9)**2)/(3.40691*10^-11)s=1.56545*10^-9s
-        nsweep=int(ceil(total_time/deltat));
+        if (freeroll==0){
+            nsweep=int(ceil(total_time/deltat));
+        }
+        else{
+            p_crawl = (1.0/tau_crawl)/(1.0/tau_crawl+1.0);
+            nsweep=int(ceil(total_time/deltat))/(1-p_crawl);
+        }
         NGRID3=NGRID*NGRID*NGRID;
-        p_crawl = (1.0/tau_crawl)/(1.0/tau_crawl+1.0);
     try
     {
       G.reserve(NGRID3);
