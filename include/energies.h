@@ -17,10 +17,11 @@ public:
     double well_depth = -10000;
     double well_width;
     double well_edge;
+    double R_hardcore_DH;
     double Debye_Huckel(double r2)
     {
         double r = sqrt(r2);
-        double prefactor = charge*charge*bjerrum_length*exp(2*R_hardcore/debye_length)/((1+R_hardcore/debye_length)*(1+R_hardcore/debye_length));
+        double prefactor = charge*charge*bjerrum_length*exp(2*R_hardcore_DH/debye_length)/((1+R_hardcore_DH/debye_length)*(1+R_hardcore_DH/debye_length));
         double U = prefactor*exp(-r/debye_length)/r;
         return U;
     }

@@ -23,7 +23,7 @@ class System
     int NMOL; //Number of molecules
     //volume fraction 6% (core+shell)
     double R=1;//radius = 8nm
-    double R_hardcore = 1.15;//hardcore radius = 1.15*8 nm
+    double R_hardcore = 1.20;//hardcore radius = 1.20*8 nm
     double charge = 12.6;//charge of the molecule
     double debye_length = 0.91875;//debye length 7.35 nm at 0.9 mM salt
     double bjerrum_length = 0.1875;//bjerrum length
@@ -31,7 +31,7 @@ class System
     double arm_L=0.25;//arm length = 2nm
     double cm_L=(arm_L+R)*2;//the cm distance when it is possible to form a bond
     double search2_cm=pow(cm_L,2);//the cm distance when it is possible to form a bond
-    double well_width = 0.1;//well width
+    double well_width = 0.05;//well width
     double L; //Length of box
     int GSL_SEED; //Seed of random number generator
     int nsweep; //Number of MC sweeps
