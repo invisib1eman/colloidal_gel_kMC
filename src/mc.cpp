@@ -95,8 +95,6 @@ double MC::MoveParticle_Single_Particle()
 {
     double accept=0.0;//accept events
     int index;
-    int N_ag_start = S.Ag.size();
-    double rand = gsl_rng_uniform(S.gsl_r);    
     // Loop over all particles
     for(int i=0; i<S.NMOL; i++)
     {
@@ -162,7 +160,6 @@ double MC::MoveParticle_Cluster_Rigid()
     double accept=0.0;//accept events
     int index;
     int N_ag_start = S.Ag.size();
-    double rand = gsl_rng_uniform(S.gsl_r);
     // Loop over all aggregates
     for(int i = 0; i < N_ag_start; i++)
     {
