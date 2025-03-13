@@ -35,7 +35,7 @@ class System
     double cm_L = well_edge * 2;//the cm distance when it is possible to form a bond
     double search2_cm = pow(cm_L,2);//the cm distance when it is possible to form a bond
     double cutoff_distance; //cutoff distance = 2 * well_edge + 4 * debye_length
-    double L; //Length of box
+    double BoxLength; //Length of box
     int GSL_SEED; //Seed of random number generator
     int nsweep; //Number of MC sweeps
     double deltat; //Timestep
@@ -61,7 +61,7 @@ class System
         ("help,h", "print usage message")
         ("NGRID,G",value<int>(&NGRID)->default_value(25),"grids(default 10)")
         ("NMOL,N", value<int>(&NMOL)->default_value(1000), "#molecules (default 400)")
-        ("box_length,L", value<double>(&L)->default_value(50.0), "length of box (default 20.0)")
+        ("box_length,L", value<double>(&BoxLength)->default_value(50.0), "length of box (default 20.0)")
         ("time,s", value<double>(&total_time)->default_value(100.0), "total time in tau_0 units (default 100.0)")
         ("MCstep,m", value<double>(&MCstep)->default_value(0.1), "MC step size (default 0.1)")// fluctuation is 0.8 nm
         ("GSL_SEED,g", value<int>(&GSL_SEED)->default_value(10), "seed for the RNG (default 10)")
@@ -127,7 +127,7 @@ class System
         cout<<"Memory issues in cell list allocation.. exiting"<<endl;
         exit(1);
         }
-        GRIDL=L/NGRID;
+        GRIDL=BoxLength/NGRID;
         if(GRIDL < cutoff_distance)
         {
             cout<<"Error: Grid size too small"<<endl;

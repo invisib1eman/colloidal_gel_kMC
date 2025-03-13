@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
     mc.E.debye_length = sys.debye_length;
     mc.E.bjerrum_length = sys.bjerrum_length;
     mc.E.charge = sys.charge;
-    mc.E.L = sys.L;
+    mc.E.BoxLength = sys.BoxLength;
     mc.E.R_hardcore = sys.R_hardcore;
     mc.E.well_width = sys.well_width;
     mc.E.well_edge = sys.R_hardcore + sys.well_width;

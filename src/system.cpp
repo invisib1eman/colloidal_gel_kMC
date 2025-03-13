@@ -17,9 +17,9 @@ void System::Create()
               g.g_index=GridIndex_index(i,j,k,NGRID);
               g.nbr.clear();
               g.plist.clear();
-              g.cm.x=(double(i)+0.5)*GRIDL-0.5*L;
-              g.cm.y=(double(j)+0.5)*GRIDL-0.5*L;
-              g.cm.z=(double(k)+0.5)*GRIDL-0.5*L;
+              g.cm.x=(double(i)+0.5)*GRIDL-0.5*BoxLength;
+              g.cm.y=(double(j)+0.5)*GRIDL-0.5*BoxLength;
+              g.cm.z=(double(k)+0.5)*GRIDL-0.5*BoxLength;
               for (int inei=i-1;inei<i+2;inei++)
               {
                 for (int jnei=j-1;jnei<j+2;jnei++)
@@ -51,11 +51,11 @@ void System::Create()
         flag = true;
         while(flag)
         {
-        p.position=XYZ(gsl_rng_uniform(gsl_r)*L-0.5*L,gsl_rng_uniform(gsl_r)*L-0.5*L,gsl_rng_uniform(gsl_r)*L-0.5*L);
+        p.position=XYZ(gsl_rng_uniform(gsl_r)*BoxLength-0.5*BoxLength,gsl_rng_uniform(gsl_r)*BoxLength-0.5*BoxLength,gsl_rng_uniform(gsl_r)*BoxLength-0.5*BoxLength);
         flag = false;
         for(int j=0; j<i; j++)
         {
-            if(min_d2(p.position,P[j].position,L)<cm_L)
+            if(min_d2(p.position,P[j].position,BoxLength)<cm_L)
             {
                 flag = true;
                 break;   
@@ -64,7 +64,7 @@ void System::Create()
         
         }
         
-        p.gID=GridIndex_xyz(p.position,NGRID,GRIDL,L);
+        p.gID=GridIndex_xyz(p.position,NGRID,GRIDL,BoxLength);
         G[p.gID].n+=1;
         G[p.gID].plist.push_back(p.P_ID);
         
@@ -183,9 +183,9 @@ void System::WriteDump(int timestep)
     int NT=NMOL*1;
     out<<NT<<endl;
     out<<"ITEM: BOX BOUNDS pp pp pp"<<endl;
-    out<<-0.5*L<<"\t"<<0.5*L<<endl;
-    out<<-0.5*L<<"\t"<<0.5*L<<endl;
-    out<<-0.5*L<<"\t"<<0.5*L<<endl;
+    out<<-0.5*BoxLength<<"\t"<<0.5*BoxLength<<endl;
+    out<<-0.5*BoxLength<<"\t"<<0.5*BoxLength<<endl;
+    out<<-0.5*BoxLength<<"\t"<<0.5*BoxLength<<endl;
     out<<"ITEM: ATOMS index type x y z"<<endl;
     /*int NT=NMOL*7;
     out<<NT<<endl;
@@ -194,7 +194,7 @@ void System::WriteDump(int timestep)
     XYZ im_pos;
     for(int i=0;i<NMOL;i++)
     {   
-        im_pos=image(P[i].position,L);
+        im_pos=image(P[i].position,BoxLength);
         out<<setw(6)<<i+1<<"\t"<<1<<"\t"<<setw(8)<<im_pos.x<<"\t"<<setw(8)<<im_pos.y<<"\t"<<setw(8)<<im_pos.z<<endl;
         
     }
@@ -214,9 +214,9 @@ void System::WriteData(int timestep)
     out << endl;
     
     // Box dimensions
-    out << -0.5*L << " " << 0.5*L << " xlo xhi" << endl;
-    out << -0.5*L << " " << 0.5*L << " ylo yhi" << endl; 
-    out << -0.5*L << " " << 0.5*L << " zlo zhi" << endl;
+    out << -0.5*BoxLength << " " << 0.5*BoxLength << " xlo xhi" << endl;
+    out << -0.5*BoxLength << " " << 0.5*BoxLength << " ylo yhi" << endl; 
+    out << -0.5*BoxLength << " " << 0.5*BoxLength << " zlo zhi" << endl;
     out << endl;
 
     // Atoms section
@@ -226,7 +226,7 @@ void System::WriteData(int timestep)
     XYZ im_centre;
     for(int i=0; i<NMOL; i++)
     {   
-        im_centre = image(P[i].position,L);
+        im_centre = image(P[i].position,BoxLength);
         // Format: atom-ID atom-type x y z
         out << i+1 << " " << i+1 << " " << 1 << " " 
             << fixed << setprecision(6) << im_centre.x << " " 
@@ -305,9 +305,9 @@ void System::UpdateGrid()
               g_index=GridIndex_index(i,j,k,NGRID);
               
              
-              G[g_index].cm.x=(double(i)+0.5)*GRIDL-0.5*L;
-              G[g_index].cm.y=(double(j)+0.5)*GRIDL-0.5*L;
-              G[g_index].cm.z=(double(k)+0.5)*GRIDL-0.5*L;
+              G[g_index].cm.x=(double(i)+0.5)*GRIDL-0.5*BoxLength;
+              G[g_index].cm.y=(double(j)+0.5)*GRIDL-0.5*BoxLength;
+              G[g_index].cm.z=(double(k)+0.5)*GRIDL-0.5*BoxLength;
               for (int inei=0;inei<3;inei++)
               {
                 for (int jnei=0;jnei<3;jnei++)
@@ -339,7 +339,7 @@ void System::writerestart()
     out << NMOL << endl;
 
     // Write box length
-    out << L << endl;
+    out << BoxLength << endl;
 
     // Write particle positions and properties
     for (int i = 0; i < NMOL; i++) {

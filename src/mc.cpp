@@ -106,8 +106,8 @@ double MC::MoveParticle_single_particle()
         index = gsl_rng_uniform_int(S.gsl_r,S.NMOL);
         Particle new_particle = S.P[index];
         new_particle.position = RandomTranslate(new_particle.position,S.MCstep,gsl_rng_uniform(S.gsl_r),gsl_rng_uniform(S.gsl_r));
-        XYZ image_position = image(new_particle.position,S.L);
-        new_particle.gID = GridIndex_xyz(image_position,S.NGRID,S.GRIDL,S.L);
+        XYZ image_position = image(new_particle.position,S.BoxLength);
+        new_particle.gID = GridIndex_xyz(image_position,S.NGRID,S.GRIDL,S.BoxLength);
         // Calculate the energy difference and glauber acceptance
         double delta_energy = 0;
         Particle old_particle = S.P[index];
@@ -128,8 +128,8 @@ double MC::MoveParticle_single_particle()
                 {
                     continue;
                 }
-                double new_r2 = min_d2(new_particle.position,S.P[l].position,S.L);
-                double old_r2 = min_d2(old_particle.position,S.P[l].position,S.L);
+                double new_r2 = min_d2(new_particle.position,S.P[l].position,S.BoxLength);
+                double old_r2 = min_d2(old_particle.position,S.P[l].position,S.BoxLength);
                 if (new_r2 < 1)
                 {
                     cout << "Too close" << endl;
@@ -195,8 +195,8 @@ double MC::MoveParticle_cluster_rigid()
             Particle p = S.P[pid];
             // Update position and grid
             p.position = p.position + translate_step;
-            XYZ image_position = image(p.position,S.L);
-            p.gID = GridIndex_xyz(image_position,S.NGRID,S.GRIDL,S.L);
+            XYZ image_position = image(p.position,S.BoxLength);
+            p.gID = GridIndex_xyz(image_position,S.NGRID,S.GRIDL,S.BoxLength);
             new_particles.push_back(p);
         }
         // Calculate the energy difference and glauber acceptance
@@ -224,8 +224,8 @@ double MC::MoveParticle_cluster_rigid()
                     {
                         continue;
                     }
-                    double new_r2 = min_d2(new_particles[j].position,S.P[l].position,S.L);
-                    double old_r2 = min_d2(old_particle.position,S.P[l].position,S.L);
+                    double new_r2 = min_d2(new_particles[j].position,S.P[l].position,S.BoxLength);
+                    double old_r2 = min_d2(old_particle.position,S.P[l].position,S.BoxLength);
                     double de = E.Debye_Huckel(new_r2) - E.Debye_Huckel(old_r2);
                     delta_energy += de;
 
@@ -282,7 +282,7 @@ double MC::MoveParticle_cluster_rigid()
                         {
                             continue;
                         }
-                        double r2 = min_d2(new_particles[j].position,S.P[l].position,S.L);
+                        double r2 = min_d2(new_particles[j].position,S.P[l].position,S.BoxLength);
                         if(r2<S.search2_cm)
                         {
                             // Store the particle list from the old aggregate before any modifications
@@ -365,8 +365,8 @@ double MC::MoveParticle_cluster_free_roll()
                 Particle p = S.P[pid];
                 // Update position and grid
                 p.position = p.position + translate_step;
-                XYZ image_position = image(p.position,S.L);
-                p.gID = GridIndex_xyz(image_position,S.NGRID,S.GRIDL,S.L);
+                XYZ image_position = image(p.position,S.BoxLength);
+                p.gID = GridIndex_xyz(image_position,S.NGRID,S.GRIDL,S.BoxLength);
                 new_particles.push_back(p);
             }
             // Calculate the energy difference and glauber acceptance
@@ -394,8 +394,8 @@ double MC::MoveParticle_cluster_free_roll()
                         {
                             continue;
                         }
-                        double new_r2 = min_d2(new_particles[j].position,S.P[l].position,S.L);
-                        double old_r2 = min_d2(old_particle.position,S.P[l].position,S.L);
+                        double new_r2 = min_d2(new_particles[j].position,S.P[l].position,S.BoxLength);
+                        double old_r2 = min_d2(old_particle.position,S.P[l].position,S.BoxLength);
                         double de = E.Debye_Huckel(new_r2) - E.Debye_Huckel(old_r2);
                         delta_energy += de;
 
@@ -452,7 +452,7 @@ double MC::MoveParticle_cluster_free_roll()
                             {
                                 continue;
                             }
-                            double r2 = min_d2(new_particles[j].position,S.P[l].position,S.L);
+                            double r2 = min_d2(new_particles[j].position,S.P[l].position,S.BoxLength);
                             if(r2<S.search2_cm)
                             {
                                 // Store the particle list from the old aggregate before any modifications
@@ -507,8 +507,8 @@ double MC::MoveParticle_cluster_free_roll()
                 continue;
             }
             new_particle.position = RandomTranslate(new_particle.position,S.MCstep,gsl_rng_uniform(S.gsl_r),gsl_rng_uniform(S.gsl_r));
-            XYZ image_position = image(new_particle.position,S.L);
-            new_particle.gID = GridIndex_xyz(image_position,S.NGRID,S.GRIDL,S.L);
+            XYZ image_position = image(new_particle.position,S.BoxLength);
+            new_particle.gID = GridIndex_xyz(image_position,S.NGRID,S.GRIDL,S.BoxLength);
             // Calculate the energy difference and glauber acceptance
             double delta_energy = 0;
             Particle old_particle = S.P[index];
@@ -529,8 +529,8 @@ double MC::MoveParticle_cluster_free_roll()
                     {
                         continue;
                     }
-                    double new_r2 = min_d2(new_particle.position,S.P[l].position,S.L);
-                    double old_r2 = min_d2(old_particle.position,S.P[l].position,S.L);
+                    double new_r2 = min_d2(new_particle.position,S.P[l].position,S.BoxLength);
+                    double old_r2 = min_d2(old_particle.position,S.P[l].position,S.BoxLength);
                     if (new_r2 < 1)
                     {
                         cout << "Too close" << endl;

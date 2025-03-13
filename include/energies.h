@@ -12,7 +12,7 @@ public:
     double debye_length;
     double bjerrum_length;
     double charge;
-    double L;
+    double BoxLength;
     double R_hardcore;
     double well_depth = -10000;
     double well_width;

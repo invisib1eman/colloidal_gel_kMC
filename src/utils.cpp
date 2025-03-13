@@ -1,12 +1,12 @@
 //NANOROD: utils.cpp Utilities Functions (Revision Date: Oct 27, 2023)
 #include "utils.h"
 //do not assume where the particle is (particle may have crossed the box twice or more)
-XYZ image(XYZ p, double L)//note that every time we calculate vectors or distances we need to image XYZ
+XYZ image(XYZ p, double BoxLength)//note that every time we calculate vectors or distances we need to image XYZ
 {
   XYZ xyz;
-  xyz.x=myfmod(p.x+0.5*L, L)-0.5*L;
-  xyz.y=myfmod(p.y+0.5*L, L)-0.5*L;
-  xyz.z=myfmod(p.z+0.5*L, L)-0.5*L;
+  xyz.x=myfmod(p.x+0.5*BoxLength, BoxLength)-0.5*BoxLength;
+  xyz.y=myfmod(p.y+0.5*BoxLength, BoxLength)-0.5*BoxLength;
+  xyz.z=myfmod(p.z+0.5*BoxLength, BoxLength)-0.5*BoxLength;
   return xyz;
 }
 double myfmod(double x, double y)
@@ -18,49 +18,49 @@ double myfmod(double x, double y)
     return temp+y;
 }
 //Minimum image distance squared: pass original coordinates
-double min_d2(XYZ a, XYZ b, double L)
+double min_d2(XYZ a, XYZ b, double BoxLength)
 {
-    a=image(a,L);
-    b=image(b,L);
+    a=image(a,BoxLength);
+    b=image(b,BoxLength);
     XYZ d=a-b;
     d.my_abs();
-    if(d.x>=0.5*L)
-      d.x=L-d.x;
+    if(d.x>=0.5*BoxLength)
+      d.x=BoxLength-d.x;
     
-    if(d.y>=0.5*L)
-      d.y=L-d.y;
+    if(d.y>=0.5*BoxLength)
+      d.y=BoxLength-d.y;
     
-    if(d.z>=0.5*L)
-      d.z=L-d.z;
+    if(d.z>=0.5*BoxLength)
+      d.z=BoxLength-d.z;
     
     return d.norm2();
 }
-XYZ real_vector(XYZ origin,double L)//after image,get the real vectors
+XYZ real_vector(XYZ origin,double BoxLength)//after image,get the real vectors
 {
   XYZ real=origin;
-  if(origin.x>0.5*L)
+  if(origin.x>0.5*BoxLength)
   {
-    real.x=origin.x-L;
+    real.x=origin.x-BoxLength;
   }
-  if(origin.x<-0.5*L)
+  if(origin.x<-0.5*BoxLength)
   {
-    real.x=origin.x+L;
+    real.x=origin.x+BoxLength;
   }
-  if(origin.y>0.5*L)
+  if(origin.y>0.5*BoxLength)
   {
-    real.y=origin.y-L;
+    real.y=origin.y-BoxLength;
   }
-  if(origin.y<-0.5*L)
+  if(origin.y<-0.5*BoxLength)
   {
-    real.y=origin.y+L;
+    real.y=origin.y+BoxLength;
   }
-  if(origin.z>0.5*L)
+  if(origin.z>0.5*BoxLength)
   {
-    real.z=origin.z-L;
+    real.z=origin.z-BoxLength;
   }
-  if(origin.z<-0.5*L)
+  if(origin.z<-0.5*BoxLength)
   {
-    real.z=origin.z+L;
+    real.z=origin.z+BoxLength;
   }
   return real;
 }
@@ -151,11 +151,11 @@ int GridIndex_index(int i,int j,int k,int n)
     k+=n;
   return n*n*k+n*j+i;
 }
-int GridIndex_xyz(XYZ& p,int n,double dl,double L)
+int GridIndex_xyz(XYZ& p,int n,double dl,double BoxLength)
 {
-  int i=int(floor((p.x+0.5*L)/dl));
-  int j=int(floor((p.y+0.5*L)/dl));
-  int k=int(floor((p.z+0.5*L)/dl));
+  int i=int(floor((p.x+0.5*BoxLength)/dl));
+  int j=int(floor((p.y+0.5*BoxLength)/dl));
+  int k=int(floor((p.z+0.5*BoxLength)/dl));
   return n*n*k+n*j+i;
 
 }
