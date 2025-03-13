@@ -18,12 +18,21 @@ public:
     double well_width;
     double well_edge;
     double R_hardcore_DH;
+    double cutoff_distance;
     double Debye_Huckel(double r2)
     {
         double r = sqrt(r2);
-        double prefactor = charge*charge*bjerrum_length*exp(2*R_hardcore_DH/debye_length)/((1+R_hardcore_DH/debye_length)*(1+R_hardcore_DH/debye_length));
-        double U = prefactor*exp(-r/debye_length)/r;
-        return U;
+        if (r > cutoff_distance)
+        {
+            return 0;
+        }
+        else
+        {
+            double prefactor = charge*charge*bjerrum_length*exp(2*R_hardcore_DH/debye_length)/((1+R_hardcore_DH/debye_length)*(1+R_hardcore_DH/debye_length));
+            double shift = prefactor*exp(-cutoff_distance/debye_length)/cutoff_distance;
+            double U = prefactor*exp(-r/debye_length)/r - shift;
+            return U;
+        }
     }
     double potential_well(double r2)
     {
