@@ -349,7 +349,7 @@ double MC::MoveParticle_cluster_free_roll()
             double stepsize;
             if (S.fake_acceleration == 0)
             {
-                stepsize = S.MCstep/pow(new_ag.n,1.0/3.0);
+                stepsize = S.MCstep/pow(new_ag.n,1.0/6.0);
             }
             else
             {
