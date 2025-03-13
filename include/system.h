@@ -11,6 +11,8 @@
 class System
 {
   public:
+    // mode: "cluster_rigid" or "cluster_free_roll" or "single_particle"
+    string mode;
     vector<Particle> P; //List of molecules
     vector<Aggregate> Ag;
     vector<Grid> G;//grid list
@@ -21,24 +23,25 @@ class System
     gsl_rng * gsl_r;
     string Description;
     int NMOL; //Number of molecules
-    //volume fraction 6% (core+shell)
-    double R=1;//radius = 8nm
+    // volume fraction 6% (core+shell) 
+    // define contants (not change as parameters)
+    double R = 1;//radius = 8nm, the semiconductor core radius and unit length scale
     double R_hardcore = 1.20;//hardcore radius = 1.20*8 nm
     double charge = 12.6;//charge of the molecule
     double debye_length = 0.91875;//debye length 7.35 nm at 0.9 mM salt
     double bjerrum_length = 0.1875;//bjerrum length
-    double cutoff_distance = 4 * R_hardcore;//cutoff distance = 4*R_hardcore = 4*9.6 nm = 38.4 nm
-    double arm_L=0.25;//arm length = 2nm
-    double cm_L=(arm_L+R)*2;//the cm distance when it is possible to form a bond
-    double search2_cm=pow(cm_L,2);//the cm distance when it is possible to form a bond
     double well_width = 0.05;//well width
+    double well_edge = R_hardcore + well_width; //well edge = 10nm
+    double cm_L = well_edge * 2;//the cm distance when it is possible to form a bond
+    double search2_cm = pow(cm_L,2);//the cm distance when it is possible to form a bond
+    double cutoff_distance; //cutoff distance = 2 * well_edge + 4 * debye_length
     double L; //Length of box
     int GSL_SEED; //Seed of random number generator
     int nsweep; //Number of MC sweeps
     double deltat; //Timestep
     double MCstep; //Step size of translation
+    int N_frame; //Number of frames
     double free_bond_freeenergy=-1;//free bond entropy
-    bool freeroll = 1;//1 is true 0 is false
     bool fake_acceleration = 0;//1 is true 0 is false
     bool read_restart = 0;//1 is true 0 is false
     double tau_crawl = 100; // crawl time scale is 100*dt
@@ -63,18 +66,19 @@ class System
         ("MCstep,m", value<double>(&MCstep)->default_value(0.1), "MC step size (default 0.1)")// fluctuation is 0.8 nm
         ("GSL_SEED,g", value<int>(&GSL_SEED)->default_value(10), "seed for the RNG (default 10)")
         ("debye_length,d", value<double>(&debye_length)->default_value(0.91875), "debye length (default 0.91875)")
-        ("Description,D", value<string>(&Description)->default_value("nanorod"), "Description (default nanorod)")
+        ("Description,D", value<string>(&Description)->default_value("colloidgel"), "Description (default colloidgel)")
         ("well_width,w", value<double>(&well_width)->default_value(0.05), "well width (default 0.05)")
-        ("freeroll,f", value<bool>(&freeroll)->default_value(1), "freeroll (default 1)")
+        ("mode", value<string>(&mode)->default_value("cluster_free_roll"), "mode (default cluster_free_roll)")
         ("fake_acceleration,a", value<bool>(&fake_acceleration)->default_value(0), "fake acceleration (default 0)")
         ("read_restart,r", value<bool>(&read_restart)->default_value(0), "read restart (default 0)")
-
-        ("tau_crawl,tcrawl", value<double>(&tau_crawl)->default_value(100), "crawl time scale (default 100)")
-        ("dump_file_name,dump", value<string>(&dump_file_name)->default_value("dump.xyz"), "dump file name (default dump.xyz)")
-        ("restart_file_name,restart", value<string>(&restart_file_name)->default_value("restart.xyz"), "restart file name (default restart.xyz)")
-        ("read_restart_file_name,read_restart", value<string>(&read_restart_file_name)->default_value("restart.xyz"), "read restart file name (default restart.xyz)")
-        ("data_file_name,data", value<string>(&data_file_name)->default_value("data.xyz"), "data file name (default data.xyz)")
-        ("log_file_name,log", value<string>(&log_file_name)->default_value("log.txt"), "log file name (default log.txt)");
+        ("tcrawl", value<double>(&tau_crawl)->default_value(100), "crawl time scale (default 100)")
+        ("dump", value<string>(&dump_file_name)->default_value("dump.xyz"), "dump file name (default dump.xyz)")
+        ("restart", value<string>(&restart_file_name)->default_value("restart.xyz"), "restart file name (default restart.xyz)")
+        ("read_restart", value<string>(&read_restart_file_name)->default_value("restart.xyz"), "read restart file name (default restart.xyz)")
+        ("data", value<string>(&data_file_name)->default_value("data.xyz"), "data file name (default data.xyz)")
+        ("log,l", value<string>(&log_file_name)->default_value("log.txt"), "log file name (default log.txt)")
+        ("nframe,n", value<int>(&N_frame)->default_value(1000), "Number of frames (default 1000)");
+        // define the input machine
         variables_map vm;
         store(parse_command_line(argc, argv, desc), vm);
         notify(vm);
@@ -84,35 +88,47 @@ class System
             cout << desc << "\n";
             exit(1);
         }
-        
+        // define the random number generator
         gsl_rng_env_setup();
-          
         gsl_T = gsl_rng_default;
         gsl_r = gsl_rng_alloc(gsl_T);
         gsl_rng_set(gsl_r, GSL_SEED);
-        
+        // Calculate variables from input
+        // calculate the well edge
+        well_edge = R_hardcore + well_width;
+        // calculate the cm distance
+        cm_L = well_edge * 2;
+        // calculate the search2_cm
+        search2_cm = pow(cm_L,2);
+        // calculate the cutoff distance
+        cutoff_distance = 2 * well_edge + 4 * debye_length;
+        // calculate the timestep
         deltat=1.0/12.0*MCstep*MCstep;
         // D = kT / 6πηa = 4.11×10−21/(6*pi*8*10**-9*0.8*10**-3)=3.40691*10^-11m^2/s
         //real time scale is MCstep*MCstep*(1/12)*((8*10**-9)**2)/(3.40691*10^-11)s=1.56545*10^-9s
-        if (freeroll==0){
+        // calculate the number of sweeps
+        if (mode == "single_particle" or mode == "cluster_rigid")
+        {
             nsweep=int(ceil(total_time/deltat));
         }
-        else{
+        if (mode == "cluster_free_roll")
+        {
             p_crawl = (1.0/tau_crawl)/(1.0/tau_crawl+1.0);
             nsweep=int(ceil(total_time/deltat))/(1-p_crawl);
         }
         NGRID3=NGRID*NGRID*NGRID;
-    try
-    {
-      G.reserve(NGRID3);
-    }
-    catch (int e)
-    {
-	cout<<"Memory issues in cell list allocation.. exiting"<<endl;
-	exit(1);
-    }
+        //reserve memory for grid list
+        try
+        {
+        G.reserve(NGRID3);
+        }
+        catch (int e)
+        {
+        cout<<"Memory issues in cell list allocation.. exiting"<<endl;
+        exit(1);
+        }
         GRIDL=L/NGRID;
-        if(GRIDL<R_hardcore*2)
+        if(GRIDL < cutoff_distance)
         {
             cout<<"Error: Grid size too small"<<endl;
             exit(1);

@@ -10,17 +10,21 @@
 class MC
 {
     public:
-        System S;
+        System& S;
         Energy E;
-        double energy, time;
+        double energy = 0.0;
+        double time = 0.0;
+        int N_frame;
         int nbr_g=27;//number of number grids
         //new vector for molecule
         vector<Particle> Pnew;
-        MC(){energy=0.0; time=0.0; }
+        MC(System& sys) : S(sys) {}
         void WriteTemplate();
         void LogProfile(int, double );
         void Sweep();
-        double MoveParticle();
+        double MoveParticle_single_particle();
+        double MoveParticle_cluster_rigid();
+        double MoveParticle_cluster_free_roll();
         bool Glauber(double, double);
         // bool Arrhenius(double A,double delta, double rand);
         // double WCAEnergy();

@@ -6,7 +6,6 @@
 int main(int argc, char *argv[]) {
     time_t start, end;
     time(&start);
-    
     System sys;
     sys.ReadInput(argc,argv);
     if(sys.read_restart==1) {
@@ -14,9 +13,8 @@ int main(int argc, char *argv[]) {
     } else {
         sys.Create();
     }
-    
-    MC mc;
-    mc.S=sys;
+    MC mc(sys);
+    mc.N_frame = sys.N_frame;
     // Pass parameters from sys to energy class
     mc.E.debye_length = sys.debye_length;
     mc.E.bjerrum_length = sys.bjerrum_length;
@@ -28,7 +26,6 @@ int main(int argc, char *argv[]) {
     mc.E.R_hardcore_DH = mc.E.well_edge;
     mc.Sweep();
     sys.writerestart();
-    
     //Finalize Random number
     gsl_rng_free(sys.gsl_r);
     time(&end);
