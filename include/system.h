@@ -145,7 +145,7 @@ class System
     void UpdateGrid();
     void WriteData(int timestep);
     void CreateDump();
-    void writerestart();
-    void readrestart();
+    void WriteRestart();
+    void ReadRestart();
 };
 #endif

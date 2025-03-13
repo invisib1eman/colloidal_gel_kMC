@@ -27,7 +27,7 @@ void MC::Sweep()
         for(int i=1; i<=S.nsweep; i++)
         {
             time += S.deltat; 
-            accept += MoveParticle_single_particle();
+            accept += MoveParticle_Single_Particle();
             if(i%nsample == 0)
             {
                 
@@ -42,7 +42,7 @@ void MC::Sweep()
         for(int i=1; i<=S.nsweep; i++)
         {
             time += S.deltat; 
-            accept += MoveParticle_cluster_free_roll();
+            accept += MoveParticle_Cluster_Free_Roll();
             
             if(i%nsample == 0)
             {
@@ -58,7 +58,7 @@ void MC::Sweep()
         for(int i=1; i<=S.nsweep; i++)
         {
             time += S.deltat; 
-            accept += MoveParticle_cluster_rigid();
+            accept += MoveParticle_Cluster_Rigid();
             
             if(i%nsample == 0)
             {
@@ -91,16 +91,13 @@ void MC::LogProfile(int i, double accept)
     out.close();
 }
 //mode: single_particle
-double MC::MoveParticle_single_particle()
+double MC::MoveParticle_Single_Particle()
 {
     double accept=0.0;//accept events
     int index;
     int N_ag_start = S.Ag.size();
-    double rand = gsl_rng_uniform(S.gsl_r);
-    
-    
-    
-        
+    double rand = gsl_rng_uniform(S.gsl_r);    
+    // Loop over all particles
     for(int i=0; i<S.NMOL; i++)
     {
         index = gsl_rng_uniform_int(S.gsl_r,S.NMOL);
@@ -160,13 +157,13 @@ double MC::MoveParticle_single_particle()
 }
 
 //mode: cluster_rigid
-double MC::MoveParticle_cluster_rigid()
+double MC::MoveParticle_Cluster_Rigid()
 {
     double accept=0.0;//accept events
     int index;
     int N_ag_start = S.Ag.size();
     double rand = gsl_rng_uniform(S.gsl_r);
-    
+    // Loop over all aggregates
     for(int i = 0; i < N_ag_start; i++)
     {
         int N_ag = S.Ag.size();
@@ -324,19 +321,20 @@ double MC::MoveParticle_cluster_rigid()
             }  
         }   
     }
-    
-    
     return accept/double(S.NMOL);
 }
 //mode: cluster_free_roll
-double MC::MoveParticle_cluster_free_roll()
+double MC::MoveParticle_Cluster_Free_Roll()
 {
     double accept=0.0;//accept events
     int index;
     int N_ag_start = S.Ag.size();
     double rand = gsl_rng_uniform(S.gsl_r);
+    // Determine if the move is cluster diffuse or single particle crawl (relaxation)
+    // Aggregate diffusion happens with probability 1 - p_crawl
     if(rand > S.p_crawl)
     {
+        // Loop over all aggregates
         for(int i = 0; i < N_ag_start; i++)
         {
             int N_ag = S.Ag.size();
@@ -495,9 +493,10 @@ double MC::MoveParticle_cluster_free_roll()
             }   
         }
     }
+    // Single particle crawl (relaxation) happens with probability p_crawl
     else
     {
-        
+        // Loop over all particles
         for(int i=0; i<S.NMOL; i++)
         {
             index = gsl_rng_uniform_int(S.gsl_r,S.NMOL);
@@ -570,8 +569,11 @@ double MC::MoveParticle_cluster_free_roll()
 }
 
 //Returns acceptance fraction
+// delta is the energy difference
+// rand is the random number
 bool MC::Glauber(double delta, double rand)
 {
+    // If the energy difference is greater than 9000 (huge energy difference), the move is not accepted
     if (delta>9000)
         return false;
     else

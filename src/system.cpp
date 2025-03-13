@@ -41,13 +41,11 @@ void System::Create()
    
     //Fill particles Use random permutation
     bool flag = false;
-    
-    
-    int count=0;
     for(int i=0; i<NMOL; i++)
     {
         Particle p;
         p.P_ID=i;
+        // Generate a random position for the particle, make sure there is no overlap with other particles
         flag = true;
         while(flag)
         {
@@ -63,11 +61,11 @@ void System::Create()
         }
         
         }
-        
+        // Calculate the grid index of the particle, and add the particle to the grid
         p.gID=GridIndex_xyz(p.position,NGRID,GRIDL,BoxLength);
         G[p.gID].n+=1;
         G[p.gID].plist.push_back(p.P_ID);
-        
+        // Create an aggregate with the particle (each particle is an aggregate at the beginning)
         Aggregate a;
         a.n=1;
         a.plist.push_back(p.P_ID);
@@ -326,7 +324,7 @@ void System::UpdateGrid()
         }
     }
 }
-void System::writerestart()
+void System::WriteRestart()
 {
     string filename = restart_file_name;
     ofstream out(filename);
@@ -387,7 +385,7 @@ void System::writerestart()
 
     out.close();
 }
-void System::readrestart()
+void System::ReadRestart()
 {
     string filename = read_restart_file_name;
     ifstream in(filename);

@@ -4,32 +4,30 @@
 #include "mc.h"
 
 int main(int argc, char *argv[]) {
+    // Start timing
     time_t start, end;
     time(&start);
+    // Initialize the system, read input, and create the system
     System sys;
     sys.ReadInput(argc,argv);
+    // If read_restart is true, read the restart file
     if(sys.read_restart==1) {
-        sys.readrestart();
+        sys.ReadRestart();
     } else {
         sys.Create();
     }
+    // Initialize the MC class
     MC mc(sys);
-    mc.N_frame = sys.N_frame;
-    // Pass parameters from sys to energy class
-    mc.E.debye_length = sys.debye_length;
-    mc.E.bjerrum_length = sys.bjerrum_length;
-    mc.E.charge = sys.charge;
-    mc.E.BoxLength = sys.BoxLength;
-    mc.E.R_hardcore = sys.R_hardcore;
-    mc.E.well_width = sys.well_width;
-    mc.E.well_edge = sys.R_hardcore + sys.well_width;
-    mc.E.R_hardcore_DH = mc.E.well_edge;
-    mc.E.cutoff_distance = sys.cutoff_distance;
+    // Run the MC sweeps
     mc.Sweep();
-    sys.writerestart();
+    // Write the restart file
+    sys.WriteRestart();
     //Finalize Random number
     gsl_rng_free(sys.gsl_r);
+    // End timing
     time(&end);
+    // Print the time elapsed
     cout<<"Time Elapsed="<<difftime(end,start)<<endl;
+    // Return 0
     return 0;
 }

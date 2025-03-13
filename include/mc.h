@@ -18,13 +18,28 @@ class MC
         int nbr_g=27;//number of number grids
         //new vector for molecule
         vector<Particle> Pnew;
-        MC(System& sys) : S(sys) {}
+        // MC constructor
+        MC(System& sys) : S(sys) {
+            //Initialize the energy class
+            E.debye_length = sys.debye_length;
+            E.bjerrum_length = sys.bjerrum_length;
+            E.charge = sys.charge;
+            E.BoxLength = sys.BoxLength;
+            E.R_hardcore = sys.R_hardcore;
+            E.well_width = sys.well_width;
+            E.well_edge = sys.R_hardcore + sys.well_width;
+            // Setup the R_hardcore_DH the same as the well_edge (hardcore radius)
+            E.R_hardcore_DH = E.well_edge;
+            E.cutoff_distance = sys.cutoff_distance;
+            // Pass the Nframe to the MC class
+            N_frame = sys.N_frame;
+        }
         void WriteTemplate();
         void LogProfile(int, double );
         void Sweep();
-        double MoveParticle_single_particle();
-        double MoveParticle_cluster_rigid();
-        double MoveParticle_cluster_free_roll();
+        double MoveParticle_Single_Particle();
+        double MoveParticle_Cluster_Rigid();
+        double MoveParticle_Cluster_Free_Roll();
         bool Glauber(double, double);
         // bool Arrhenius(double A,double delta, double rand);
         // double WCAEnergy();
