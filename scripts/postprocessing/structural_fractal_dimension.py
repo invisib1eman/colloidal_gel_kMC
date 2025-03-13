@@ -7,6 +7,7 @@ import freud
 import shutil
 import argparse
 import os
+from scipy.stats import linregress
 
 # Define calculation for direct structure factor
 def compute_sf_for_timestep_Direct(u: mda.Universe, ts_index1: int, ts_index2: int, bins: int, reset: bool = False) -> freud.diffraction.StaticStructureFactorDirect:
@@ -27,9 +28,9 @@ def compute_sf_for_timestep_Direct(u: mda.Universe, ts_index1: int, ts_index2: i
     box = ts.dimensions[:3]
     # make deltak finer: np.pi/box[0]
     deltak = 4*np.pi/box[0]
-    k_min = 0.5*deltak
-    k_max = (bins+0.5)*deltak
-    
+    k_min = 3*deltak
+    k_max = 10*deltak
+    bins = int((k_max - k_min) / deltak)
     
     sfDirect = freud.diffraction.StaticStructureFactorDirect(bins=bins, k_max=k_max, k_min=k_min)
     
@@ -105,9 +106,17 @@ def save_structure_factors(u: mda.Universe, salt: float, step_size: float, n_par
         plt.xscale('log')
         plt.yscale('log')
         plt.legend()
-    
+        log_k = np.log(k_unit)
+        log_S_k = np.log(sfDirect.S_k)
+        # Fit a line to the log-log plot
+        slope, intercept, r_value, p_value, std_err = linregress(log_k, log_S_k)
+        Df = -slope
+        plt.plot(log_k, slope * log_k + intercept, 'r--', label=f'Fit: $S(k) = {slope:.2f}k + {intercept:.2f}$')
+        plt.legend()
         # Save figure
-        plt.savefig("../../figures/"+nameprefix+f"_start{start_index[j]}_end{end_index[j]}.png", dpi=300, bbox_inches='tight')
+        with open("../../fractal_dimension/fractal_dimension.txt", "a") as f:
+            f.write(f"{salt} {step_size} {n_particles} {box_length} {total_time} {tau_crawl} {freeroll} {start_index[j]} {end_index[j]} {Df:.2f}\n")
+        plt.savefig("../../figures/"+nameprefix+f"_start{start_index[j]}_end{end_index[j]}_Df_{Df:.2f}.png", dpi=300, bbox_inches='tight')
     plt.close()
     
     # Save structure factor data
@@ -116,7 +125,7 @@ def save_structure_factors(u: mda.Universe, salt: float, step_size: float, n_par
             'k_values': data['k_values'],
             'S_k': data['S_k']
         })
-        df.to_csv("../../structural_factors/"+nameprefix+f"_start{start_index[i]}_end{end_index[i]}.csv", index=False)
+        df.to_csv("../../structural_factors/"+nameprefix+f"_start{start_index[i]}_end{end_index[i]}_Df_{Df:.2f}.csv", index=False)
 
 
 
