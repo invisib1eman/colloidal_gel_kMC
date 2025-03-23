@@ -367,10 +367,11 @@ double MC::MoveParticle_Cluster_Free_Roll()
             // Calculate the energy difference and glauber acceptance
             double delta_energy = 0;
             for(int j=0; j<new_ag.n; j++) {
-                int pid = new_ag.plist[j];
-                Particle old_particle = S.P[pid];
+                int pID = new_ag.plist[j];
+                Particle old_particle = S.P[pID];
+                Particle new_particle = new_particles[j];
                 int oldgID = old_particle.gID;
-                int pindex = old_particle.P_ID;
+                int newgID = new_particle.gID;
                 for(int k=0; k<S.G[oldgID].nbr.size(); k++)
                 {
                     int ngID = S.G[oldgID].nbr[k];
@@ -383,17 +384,38 @@ double MC::MoveParticle_Cluster_Free_Roll()
                     for(it=S.G[ngID].plist.begin();it!=S.G[ngID].plist.end();it++)
                     {
                         int l=*it;
-                        int A_ID1 = S.P[new_particles[j].P_ID].A_ID;
+                        int A_ID1 = S.P[pID].A_ID;
+                        int A_ID2 = S.P[l].A_ID;
+                        if(A_ID1 == A_ID2)
+                        {
+                            continue;
+                        }
+                        double old_r2 = min_d2(old_particle.position,S.P[l].position,S.BoxLength);
+                        double de = - E.Debye_Huckel(old_r2);
+                        delta_energy += de;
+                    }
+                }
+                for(int k=0; k<S.G[newgID].nbr.size(); k++)
+                {
+                    int ngID = S.G[newgID].nbr[k];
+                    if(S.G[ngID].plist.empty())
+                    {
+                        continue;
+                    }
+                    //iterate about molecules in the neighborlist
+                    list<int>::iterator it;
+                    for(it=S.G[ngID].plist.begin();it!=S.G[ngID].plist.end();it++)
+                    {
+                        int l=*it;
+                        int A_ID1 = S.P[pID].A_ID;
                         int A_ID2 = S.P[l].A_ID;
                         if(A_ID1 == A_ID2)
                         {
                             continue;
                         }
                         double new_r2 = min_d2(new_particles[j].position,S.P[l].position,S.BoxLength);
-                        double old_r2 = min_d2(old_particle.position,S.P[l].position,S.BoxLength);
-                        double de = E.Debye_Huckel(new_r2) - E.Debye_Huckel(old_r2);
+                        double de = E.Debye_Huckel(new_r2);
                         delta_energy += de;
-
                     }
                 }
             }
@@ -509,6 +531,7 @@ double MC::MoveParticle_Cluster_Free_Roll()
             double delta_energy = 0;
             Particle old_particle = S.P[index];
             int oldgID = old_particle.gID;
+            int newgID = new_particle.gID;
             for(int k=0; k<S.G[oldgID].nbr.size(); k++)
             {
                 int ngID = S.G[oldgID].nbr[k];
@@ -525,14 +548,40 @@ double MC::MoveParticle_Cluster_Free_Roll()
                     {
                         continue;
                     }
-                    double new_r2 = min_d2(new_particle.position,S.P[l].position,S.BoxLength);
                     double old_r2 = min_d2(old_particle.position,S.P[l].position,S.BoxLength);
-                    if (new_r2 < 1)
+                    // if (new_r2 < 1)
+                    // {
+                    //     cout << "Too close" << endl;
+                    //     exit(1);
+                    // }
+                    double de = - E.total_energy(old_r2);
+                    delta_energy += de;
+
+                }
+            }
+            for(int k=0; k<S.G[newgID].nbr.size(); k++)
+            {
+                int ngID = S.G[newgID].nbr[k];
+                if(S.G[ngID].plist.empty())
+                {
+                    continue;
+                }
+                //iterate about molecules in the neighborlist
+                list<int>::iterator it;
+                for(it=S.G[ngID].plist.begin();it!=S.G[ngID].plist.end();it++)
+                {
+                    int l=*it;
+                    if(l == index)
                     {
-                        cout << "Too close" << endl;
-                        exit(1);
+                        continue;
                     }
-                    double de = E.total_energy(new_r2) - E.total_energy(old_r2);
+                    double new_r2 = min_d2(new_particle.position,S.P[l].position,S.BoxLength);
+                    // if (new_r2 < 1)
+                    // {
+                    //     cout << "Too close" << endl;
+                    //     exit(1);
+                    // }
+                    double de = E.total_energy(new_r2);
                     delta_energy += de;
 
                 }

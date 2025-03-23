@@ -69,7 +69,7 @@ void System::Create()
         Aggregate a;
         a.n=1;
         a.plist.push_back(p.P_ID);
-        a.rg=1.0;
+        a.Rg=1.0;
         a.cm=p.position;
         Ag.push_back(a);
         p.A_ID = i;
