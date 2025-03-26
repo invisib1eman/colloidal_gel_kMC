@@ -13,6 +13,7 @@ public:
     XYZ position; //Coordinates of vertices
     int nbonds;//number of bonds, 0 or 1 (only for ver)
     int A_ID;//aggregate id
+    set<int> nbr_particles;
     
     
         

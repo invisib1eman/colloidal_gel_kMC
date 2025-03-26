@@ -196,36 +196,58 @@ double MC::MoveParticle_Cluster_Rigid()
         // Calculate the energy difference and glauber acceptance
         double delta_energy = 0;
         for(int j=0; j<new_ag.n; j++) {
-            int pid = new_ag.plist[j];
-            Particle old_particle = S.P[pid];
-            int oldgID = old_particle.gID;
-            int pindex = old_particle.P_ID;
-            for(int k=0; k<S.G[oldgID].nbr.size(); k++)
-            {
-                int ngID = S.G[oldgID].nbr[k];
-                if(S.G[ngID].plist.empty())
+                int pID = new_ag.plist[j];
+                Particle old_particle = S.P[pID];
+                Particle new_particle = new_particles[j];
+                int oldgID = old_particle.gID;
+                int newgID = new_particle.gID;
+                for(int k=0; k<S.G[oldgID].nbr.size(); k++)
                 {
-                    continue;
-                }
-                //iterate about molecules in the neighborlist
-                list<int>::iterator it;
-                for(it=S.G[ngID].plist.begin();it!=S.G[ngID].plist.end();it++)
-                {
-                    int l=*it;
-                    int A_ID1 = S.P[new_particles[j].P_ID].A_ID;
-                    int A_ID2 = S.P[l].A_ID;
-                    if(A_ID1 == A_ID2)
+                    int ngID = S.G[oldgID].nbr[k];
+                    if(S.G[ngID].plist.empty())
                     {
                         continue;
                     }
-                    double new_r2 = min_d2(new_particles[j].position,S.P[l].position,S.BoxLength);
-                    double old_r2 = min_d2(old_particle.position,S.P[l].position,S.BoxLength);
-                    double de = E.Debye_Huckel(new_r2) - E.Debye_Huckel(old_r2);
-                    delta_energy += de;
-
+                    //iterate about molecules in the neighborlist
+                    list<int>::iterator it;
+                    for(it=S.G[ngID].plist.begin();it!=S.G[ngID].plist.end();it++)
+                    {
+                        int l=*it;
+                        int A_ID1 = S.P[pID].A_ID;
+                        int A_ID2 = S.P[l].A_ID;
+                        if(A_ID1 == A_ID2)
+                        {
+                            continue;
+                        }
+                        double old_r2 = min_d2(old_particle.position,S.P[l].position,S.BoxLength);
+                        double de = - E.Debye_Huckel(old_r2);
+                        delta_energy += de;
+                    }
+                }
+                for(int k=0; k<S.G[newgID].nbr.size(); k++)
+                {
+                    int ngID = S.G[newgID].nbr[k];
+                    if(S.G[ngID].plist.empty())
+                    {
+                        continue;
+                    }
+                    //iterate about molecules in the neighborlist
+                    list<int>::iterator it;
+                    for(it=S.G[ngID].plist.begin();it!=S.G[ngID].plist.end();it++)
+                    {
+                        int l=*it;
+                        int A_ID1 = S.P[pID].A_ID;
+                        int A_ID2 = S.P[l].A_ID;
+                        if(A_ID1 == A_ID2)
+                        {
+                            continue;
+                        }
+                        double new_r2 = min_d2(new_particles[j].position,S.P[l].position,S.BoxLength);
+                        double de = E.Debye_Huckel(new_r2);
+                        delta_energy += de;
+                    }
                 }
             }
-        }
         double rand = gsl_rng_uniform(S.gsl_r);
         if(Glauber(delta_energy,rand)) 
         {
@@ -532,6 +554,9 @@ double MC::MoveParticle_Cluster_Free_Roll()
             Particle old_particle = S.P[index];
             int oldgID = old_particle.gID;
             int newgID = new_particle.gID;
+            // Calculate energy difference for the particle move
+            // First, remove the current particle from neighbors' nbr_particles lists
+            
             for(int k=0; k<S.G[oldgID].nbr.size(); k++)
             {
                 int ngID = S.G[oldgID].nbr[k];
@@ -576,11 +601,6 @@ double MC::MoveParticle_Cluster_Free_Roll()
                         continue;
                     }
                     double new_r2 = min_d2(new_particle.position,S.P[l].position,S.BoxLength);
-                    // if (new_r2 < 1)
-                    // {
-                    //     cout << "Too close" << endl;
-                    //     exit(1);
-                    // }
                     double de = E.total_energy(new_r2);
                     delta_energy += de;
 
@@ -589,27 +609,20 @@ double MC::MoveParticle_Cluster_Free_Roll()
             if(Glauber(delta_energy,gsl_rng_uniform(S.gsl_r)))
             {
                 accept += 1.0;
-                energy += delta_energy;
-                // First remove particles from their old grids
-                
-            
-                    
-                    
+                energy += delta_energy;    
                 // Remove from old grid first
                 S.G[oldgID].n -= 1;
                 S.G[oldgID].plist.remove(index);
-            
-
-                // Then add particles to their new grids
-                
-                S.P[index] = new_particle;
                 // Add to new grid
                 S.G[new_particle.gID].n += 1;
                 S.G[new_particle.gID].plist.push_back(index);
+                S.P[index] = new_particle;
     
             }
             
         }
+        Find_Neighbors();
+        Cluster_Particles();
     }
     return accept/double(S.NMOL);
 }
@@ -631,4 +644,120 @@ bool MC::Glauber(double delta, double rand)
             return false;
     }
     
+}
+
+void MC::Find_Neighbors()
+{
+    // Clear existing neighbor lists for all particles
+    for(int i=0; i<S.NMOL; i++)
+    {
+        S.P[i].nbr_particles.clear();
+    }
+    
+    // Loop through all grid cells
+    for(int gID=0; gID<S.G.size(); gID++)
+    {
+        // Skip empty grid cells
+        if(S.G[gID].plist.empty())
+        {
+            continue;
+        }
+        
+        // Loop through all particles in this grid cell
+        for(int pid : S.G[gID].plist)
+        {
+            // Loop through all neighboring grid cells
+            for(int k=0; k<S.G[gID].nbr.size(); k++)
+            {
+                int ngID = S.G[gID].nbr[k];
+                
+                // Skip empty neighboring grid cells
+                if(S.G[ngID].plist.empty())
+                {
+                    continue;
+                }
+                
+                // Loop through all particles in the neighboring grid cell
+                for(int npid : S.G[ngID].plist)
+                {
+                    // Skip self-comparison
+                    if(pid == npid || S.P[pid].nbr_particles.find(npid) != S.P[pid].nbr_particles.end())
+                    {
+                        continue;
+                    }
+                    
+                    // Calculate squared distance between particles
+                    double r2 = min_d2(S.P[pid].position, S.P[npid].position, S.BoxLength);
+                    
+                    // If distance is less than search distance, add to neighbor list
+                    if(r2 < S.search2_cm)
+                    {
+                        S.P[pid].nbr_particles.insert(npid);
+                        S.P[npid].nbr_particles.insert(pid);
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+void MC::Cluster_Particles()
+{
+    // Clear existing aggregates
+    S.Ag.clear();
+    
+    // Create a vector to track which particles have been processed
+    vector<bool> processed(S.NMOL, false);
+    
+    // Process each particle
+    for (int i = 0; i < S.NMOL; i++) {
+        // Skip if this particle has already been processed
+        if (processed[i]) {
+            continue;
+        }
+        
+        // Create a new aggregate
+        Aggregate new_aggregate;
+        new_aggregate.n = 0;
+        new_aggregate.cm = XYZ(0, 0, 0);
+        
+        // Use breadth-first search to find all connected particles
+        queue<int> to_process;
+        to_process.push(i);
+        processed[i] = true;
+        
+        while (!to_process.empty()) {
+            int current = to_process.front();
+            to_process.pop();
+            
+            // Add current particle to the aggregate
+            new_aggregate.plist.push_back(current);
+            new_aggregate.n++;
+            new_aggregate.cm = new_aggregate.cm + S.P[current].position;
+            
+            // Update the particle's aggregate ID
+            S.P[current].A_ID = S.Ag.size();
+            
+            // Process all neighbors
+            for (int neighbor : S.P[current].nbr_particles) {
+                if (!processed[neighbor]) {
+                    to_process.push(neighbor);
+                    processed[neighbor] = true;
+                }
+            }
+        }
+        
+        // Calculate the center of mass
+        if (new_aggregate.n > 0) {
+            new_aggregate.cm.x /= new_aggregate.n;
+            new_aggregate.cm.y /= new_aggregate.n;
+            new_aggregate.cm.z /= new_aggregate.n;
+        }
+        
+        // Add the new aggregate to the system
+        S.Ag.push_back(new_aggregate);
+    }
+
 }

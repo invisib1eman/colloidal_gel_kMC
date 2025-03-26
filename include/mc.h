@@ -41,6 +41,8 @@ class MC
         double MoveParticle_Cluster_Rigid();
         double MoveParticle_Cluster_Free_Roll();
         bool Glauber(double, double);
+        void Cluster_Particles();
+        void Find_Neighbors();
         // bool Arrhenius(double A,double delta, double rand);
         // double WCAEnergy();
         // double FENE_energy();

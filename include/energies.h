@@ -43,7 +43,7 @@ public:
         }
         else if (r <= 2*R_hardcore)
         {
-            return 10000;
+            return 100000;
         }
         else
         {
