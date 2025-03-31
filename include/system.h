@@ -45,6 +45,7 @@ class System
     double free_bond_freeenergy=-1;//free bond entropy
     bool fake_acceleration = 0;//1 is true 0 is false
     bool read_restart = 0;//1 is true 0 is false
+    bool read_xyz = 0;//1 is true 0 is false
     double tau_crawl = 100; // crawl time scale is 100*dt
     double p_crawl = (1.0/tau_crawl)/(1.0/tau_crawl+1.0); // probability of crawl
     string dump_file_name;
@@ -52,6 +53,7 @@ class System
     string restart_file_name;
     string data_file_name;
     string log_file_name;
+    string read_xyz_file_name;
     void ReadInput(int argc, char *argv[])
     {
         double total_time;
@@ -74,11 +76,13 @@ class System
         ("fake_acceleration,a", value<bool>(&fake_acceleration)->default_value(0), "fake acceleration (default 0)")
         ("read_restart,r", value<bool>(&read_restart)->default_value(0), "read restart (default 0)")
         ("tcrawl", value<double>(&tau_crawl)->default_value(100), "crawl time scale (default 100)")
-        ("dump", value<string>(&dump_file_name)->default_value("dump.xyz"), "dump file name (default dump.xyz)")
-        ("restart", value<string>(&restart_file_name)->default_value("restart.xyz"), "restart file name (default restart.xyz)")
-        ("read_restart", value<string>(&read_restart_file_name)->default_value("restart.xyz"), "read restart file name (default restart.xyz)")
-        ("data", value<string>(&data_file_name)->default_value("data.xyz"), "data file name (default data.xyz)")
-        ("log,l", value<string>(&log_file_name)->default_value("log.txt"), "log file name (default log.txt)")
+        ("dump", value<string>(&dump_file_name)->default_value("a.lammpsdump"), "dump file name (default a.lammpsdump)")
+        ("restart", value<string>(&restart_file_name)->default_value("a.restart"), "restart file name (default a.restart)")
+        ("read_restart_file", value<string>(&read_restart_file_name)->default_value("a.restart"), "read restart file name (default a.restart)")
+        ("data", value<string>(&data_file_name)->default_value("a.data"), "data file name (default a.data)")
+        ("log,l", value<string>(&log_file_name)->default_value("a.log"), "log file name (default a.log)")
+        ("read_xyz,x", value<bool>(&read_xyz)->default_value(0), "read xyz (default 0)")
+        ("read_xyz_file", value<string>(&read_xyz_file_name)->default_value("a.xyz"), "read xyz file name (default a.xyz)")
         ("nframe,n", value<int>(&N_frame)->default_value(1000), "Number of frames (default 1000)");
         // define the input machine
         variables_map vm;
@@ -149,5 +153,6 @@ class System
     void CreateDump();
     void WriteRestart();
     void ReadRestart();
+    void ReadXYZ();
 };
 #endif

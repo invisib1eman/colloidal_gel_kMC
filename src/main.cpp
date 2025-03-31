@@ -16,6 +16,9 @@ int main(int argc, char *argv[]) {
     } else {
         sys.Create();
     }
+    if(sys.read_xyz==1) {
+        sys.ReadXYZ();
+    }
     // Initialize the MC class
     MC mc(sys);
     // Run the MC sweeps

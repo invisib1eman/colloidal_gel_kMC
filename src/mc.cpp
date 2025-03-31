@@ -14,6 +14,8 @@ void MC::Sweep()
     S.WriteDump(0);
     S.WriteData(0);
     double accept=0.0;
+    Find_Neighbors();
+    Cluster_Particles();
     // Output 1000 frames
     int nsample = S.nsweep/N_frame;
     if(nsample<1)

@@ -454,3 +454,52 @@ void System::ReadRestart()
 }
 
 
+void System::ReadXYZ()
+{
+    string filename = read_xyz_file_name;
+    ifstream in(filename);
+    if (!in.is_open()) {
+        cout << "Error: Could not open XYZ file: " << filename << endl;
+        exit(1);
+    }
+    
+    int num_particles;
+    
+    
+    // Read number of particles
+    in >> num_particles;
+    
+    // Check if number of particles matches NMOL
+    if (num_particles != NMOL) {
+        cout << "Error: Number of particles in XYZ file (" << num_particles 
+             << ") does not match NMOL (" << NMOL << ")" << endl;
+        exit(1);
+    }
+    
+    // Read Box size
+    
+    in >> BoxLength;
+    
+    // Resize particle vector if needed
+    if (P.size() != NMOL) {
+        P.resize(NMOL);
+    }
+    
+    // Read particle coordinates
+    for (int i = 0; i < NMOL; i++) {
+        string atom_type;
+        in >> atom_type >> P[i].position.x >> P[i].position.y >> P[i].position.z;
+        
+        // Initialize particle properties
+        P[i].P_ID = i;
+        P[i].A_ID = i; // Initially each particle is its own aggregate
+        
+        // Calculate grid index for this particle
+        P[i].gID = GridIndex_xyz(P[i].position, NGRID, GRIDL, BoxLength);
+    }
+    
+    in.close();
+    cout << "Successfully read " << NMOL << " particles from XYZ file" << endl;
+
+}
+
