@@ -31,6 +31,10 @@ int main(int argc, char *argv[]) {
     time(&end);
     // Print the time elapsed
     cout<<"Time Elapsed="<<difftime(end,start)<<endl;
+    // Print the timeelapsed to log file defined in mc
+    ofstream logfile(sys.log_file_name, ios::app);
+    logfile << "Time Elapsed=" << difftime(end,start) << endl;
+    logfile.close();
     // Return 0
     return 0;
 }

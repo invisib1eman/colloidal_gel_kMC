@@ -34,6 +34,9 @@ class MC
             E.cutoff_distance = sys.cutoff_distance;
             // Pass the Nframe to the MC class
             N_frame = sys.N_frame;
+            E.morse_a = sys.morse_a;
+            E.morse_r0 = sys.morse_r0;
+            E.morse_well_depth = sys.morse_well_depth;
         }
         void WriteTemplate();
         void LogProfile(int, double );
@@ -41,6 +44,8 @@ class MC
         double MoveParticle_Single_Particle();
         double MoveParticle_Cluster_Rigid();
         double MoveParticle_Cluster_Free_Roll();
+        double MoveParticle_Cluster_Alpha();
+        double MoveParticle_Cluster_Alpha_Morse();
         bool Glauber(double, double);
         void Cluster_Particles();
         void Find_Neighbors();

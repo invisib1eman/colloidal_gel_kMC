@@ -19,6 +19,23 @@ public:
     double well_edge;
     double R_hardcore_DH;
     double cutoff_distance;
+    double morse_well_depth;
+    double morse_a;
+    double morse_r0;
+    double morse_potential(double r2)
+    {
+        double r = sqrt(r2);
+        double shift_morse = morse_well_depth*(exp(-2*(morse_r0-morse_r0)/morse_a)-2*exp(-(morse_r0-morse_r0)/morse_a));
+        if (r > cutoff_distance)
+        {
+            return 0;
+        }
+        else
+        {
+            double U = morse_well_depth*(exp(-2*(r-morse_r0)*morse_a)-2*exp(-(r-morse_r0)*morse_a)) - shift_morse;
+            return U;
+        }
+    }
     double Debye_Huckel(double r2)
     {
         double r = sqrt(r2);

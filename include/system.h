@@ -11,8 +11,13 @@
 class System
 {
   public:
-    // mode: "cluster_rigid" or "cluster_free_roll" or "single_particle"
+    // mode: "cluster_rigid" or "cluster_free_roll" or "single_particle" or "cluster_alpha" or "cluster_alpha_morse"
     string mode;
+    double alpha=0.33;
+    double morse_range=1.0;
+    double morse_a=0.5;
+    double morse_r0=2.0;
+    double morse_well_depth=-5;
     vector<Particle> P; //List of molecules
     vector<Aggregate> Ag;
     vector<Grid> G;//grid list
@@ -72,7 +77,12 @@ class System
         ("Description,D", value<string>(&Description)->default_value("colloidgel"), "Description (default colloidgel)")
         ("well_width,w", value<double>(&well_width)->default_value(0.05), "well width (default 0.05)")
         ("well_depth,W", value<double>(&well_depth)->default_value(-10000), "well depth (default -10000)")
-        ("mode", value<string>(&mode)->default_value("cluster_free_roll"), "mode (default cluster_free_roll) (choices: cluster_free_roll, cluster_rigid, single_particle)")
+        ("mode", value<string>(&mode)->default_value("cluster_free_roll"), "mode (default cluster_free_roll) (choices: cluster_free_roll, cluster_rigid, single_particle, cluster_alpha, cluster_alpha_morse)")
+        ("alpha", value<double>(&alpha)->default_value(0.0), "alpha (default 0.33) (D~N^(-alpha))")
+        ("morse_range,M", value<double>(&morse_range)->default_value(1.0), "morse range (default 1.0)")
+        ("morse_a,A", value<double>(&morse_a)->default_value(0.5), "morse a (default 0.5)")
+        ("morse_r0,R", value<double>(&morse_r0)->default_value(1.0), "morse r0 (default 1.0)")
+        ("morse_well_depth,W", value<double>(&morse_well_depth)->default_value(-5), "morse well depth (default -5)")
         ("fake_acceleration,a", value<bool>(&fake_acceleration)->default_value(0), "fake acceleration (default 0)")
         ("read_restart,r", value<bool>(&read_restart)->default_value(0), "read restart (default 0)")
         ("tcrawl", value<double>(&tau_crawl)->default_value(100), "crawl time scale (default 100)")
@@ -110,6 +120,7 @@ class System
         cutoff_distance = 2 * well_edge + 3 * debye_length;
         // calculate the timestep
         deltat=1.0/12.0*MCstep*MCstep*(1-p_crawl);
+        morse_a = -log(1-sqrt(1-exp(-morse_range/morse_a)))/morse_range;
         // D = kT / 6πηa = 4.11×10−21/(6*pi*8*10**-9*0.8*10**-3)=3.40691*10^-11m^2/s in the mixed solvent DMF/Ethylene glycol with viscosity 0.8 mPa*s.
         // real time scale of each MC step is MCstep*MCstep*(1/12)*((8*10**-9)**2)/(3.40691*10^-11)s=1.56545*10^-9s
         // calculate the number of sweeps
@@ -117,7 +128,7 @@ class System
         {
             nsweep=int(ceil(total_time/deltat));
         }
-        if (mode == "cluster_free_roll")
+        if (mode == "cluster_free_roll" or mode == "cluster_alpha" or mode == "cluster_alpha_morse")
         {
             p_crawl = (1.0/tau_crawl)/(1.0/tau_crawl+1.0);
             nsweep=int(ceil(total_time/deltat));
