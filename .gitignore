@@ -1,12 +1,23 @@
-# ignore trajectories
+# Build directories
 build/
-bin/
-data/
-MPM_traj/
-trajectories/
-figures/
-structural_factors/
-restart/
-logs/
+_build/
+cmake-build-*/
+
+# IDE specific
+.idea/
+.vscode/
+*.swp
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+
+# Generated files
 *.o
-colloidgel
+*.so
+*.dylib
+*.dll
+*.exe

@@ -23,7 +23,7 @@ class System
     gsl_rng * gsl_r;
     string Description;
     int NMOL; //Number of molecules
-    // volume fraction 6% (core+shell) 
+    // volume fraction (core+shell) 
     // define contants (not change as parameters)
     double R = 1;//radius = 8nm, the semiconductor core radius and unit length scale
     double R_hardcore = 1.20;//hardcore radius = 1.20*8 nm
@@ -62,9 +62,9 @@ class System
     
         desc.add_options()
         ("help,h", "print usage message")
-        ("NGRID,G",value<int>(&NGRID)->default_value(25),"grids(default 10)")
-        ("NMOL,N", value<int>(&NMOL)->default_value(1000), "#molecules (default 400)")
-        ("box_length,L", value<double>(&BoxLength)->default_value(50.0), "length of box (default 20.0)")
+        ("NGRID,G",value<int>(&NGRID)->default_value(20),"grids(default 20)")
+        ("NMOL,N", value<int>(&NMOL)->default_value(1000), "#molecules (default 1000)")
+        ("box_length,L", value<double>(&BoxLength)->default_value(50.0), "length of box (default 50.0)")
         ("time,s", value<double>(&total_time)->default_value(100.0), "total time in tau_0 units (default 100.0)")
         ("MCstep,m", value<double>(&MCstep)->default_value(0.1), "MC step size (default 0.1)")// fluctuation is 0.8 nm
         ("GSL_SEED,g", value<int>(&GSL_SEED)->default_value(10), "seed for the RNG (default 10)")
@@ -72,7 +72,7 @@ class System
         ("Description,D", value<string>(&Description)->default_value("colloidgel"), "Description (default colloidgel)")
         ("well_width,w", value<double>(&well_width)->default_value(0.05), "well width (default 0.05)")
         ("well_depth,W", value<double>(&well_depth)->default_value(-10000), "well depth (default -10000)")
-        ("mode", value<string>(&mode)->default_value("cluster_free_roll"), "mode (default cluster_free_roll)")
+        ("mode", value<string>(&mode)->default_value("cluster_free_roll"), "mode (default cluster_free_roll) (choices: cluster_free_roll, cluster_rigid, single_particle)")
         ("fake_acceleration,a", value<bool>(&fake_acceleration)->default_value(0), "fake acceleration (default 0)")
         ("read_restart,r", value<bool>(&read_restart)->default_value(0), "read restart (default 0)")
         ("tcrawl", value<double>(&tau_crawl)->default_value(100), "crawl time scale (default 100)")
@@ -109,7 +109,7 @@ class System
         // calculate the cutoff distance
         cutoff_distance = 2 * well_edge + 3 * debye_length;
         // calculate the timestep
-        deltat=1.0/12.0*MCstep*MCstep;
+        deltat=1.0/12.0*MCstep*MCstep*(1-p_crawl);
         // D = kT / 6πηa = 4.11×10−21/(6*pi*8*10**-9*0.8*10**-3)=3.40691*10^-11m^2/s in the mixed solvent DMF/Ethylene glycol with viscosity 0.8 mPa*s.
         // real time scale of each MC step is MCstep*MCstep*(1/12)*((8*10**-9)**2)/(3.40691*10^-11)s=1.56545*10^-9s
         // calculate the number of sweeps
@@ -120,7 +120,7 @@ class System
         if (mode == "cluster_free_roll")
         {
             p_crawl = (1.0/tau_crawl)/(1.0/tau_crawl+1.0);
-            nsweep=int(ceil(total_time/deltat))/(1-p_crawl);
+            nsweep=int(ceil(total_time/deltat));
         }
         NGRID3=NGRID*NGRID*NGRID;
         //reserve memory for grid list
