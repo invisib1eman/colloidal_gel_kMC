@@ -25,7 +25,7 @@ public:
     double morse_potential(double r2)
     {
         double r = sqrt(r2);
-        double shift_morse = morse_well_depth*(exp(-2*(morse_r0-morse_r0)/morse_a)-2*exp(-(morse_r0-morse_r0)/morse_a));
+        double shift_morse = morse_well_depth*(exp(-2*(cutoff_distance-morse_r0)/morse_a)-2*exp(-(cutoff_distance-morse_r0)/morse_a));
         if (r > cutoff_distance)
         {
             return 0;

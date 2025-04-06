@@ -78,7 +78,7 @@ class System
         ("well_width,w", value<double>(&well_width)->default_value(0.05), "well width (default 0.05)")
         ("well_depth,W", value<double>(&well_depth)->default_value(-10000), "well depth (default -10000)")
         ("mode", value<string>(&mode)->default_value("cluster_free_roll"), "mode (default cluster_free_roll) (choices: cluster_free_roll, cluster_rigid, single_particle, cluster_alpha, cluster_alpha_morse)")
-        ("alpha", value<double>(&alpha)->default_value(0.0), "alpha (default 0.33) (D~N^(-alpha))")
+        ("alpha", value<double>(&alpha)->default_value(0.33), "alpha (default 0.33) (D~N^(-alpha))")
         ("morse_range,M", value<double>(&morse_range)->default_value(1.0), "morse range (default 1.0)")
         ("morse_r0,R", value<double>(&morse_r0)->default_value(2.0), "morse r0 (default 2.0)")
         ("morse_well_depth,W", value<double>(&morse_well_depth)->default_value(-5), "morse well depth (default -5)")
