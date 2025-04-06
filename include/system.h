@@ -119,7 +119,7 @@ class System
         cutoff_distance = 2 * well_edge + 3 * debye_length;
         // calculate the timestep
         deltat=1.0/12.0*MCstep*MCstep*(1-p_crawl);
-        morse_a = -log(1-sqrt(1-exp(-morse_range/morse_a)))/morse_range;
+        morse_a = -log(1-sqrt(1-exp(-1/morse_well_depth)))/morse_range;
         // D = kT / 6πηa = 4.11×10−21/(6*pi*8*10**-9*0.8*10**-3)=3.40691*10^-11m^2/s in the mixed solvent DMF/Ethylene glycol with viscosity 0.8 mPa*s.
         // real time scale of each MC step is MCstep*MCstep*(1/12)*((8*10**-9)**2)/(3.40691*10^-11)s=1.56545*10^-9s
         // calculate the number of sweeps
