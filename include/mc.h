@@ -30,7 +30,7 @@ class MC
             E.well_edge = sys.R_hardcore + sys.well_width;
             E.well_depth = sys.well_depth;
             // Setup the R_hardcore_DH the same as the well_edge (hardcore radius)
-            E.R_hardcore_DH = E.well_edge;
+            E.R_hardcore_DH = sys.R;
             E.cutoff_distance = sys.cutoff_distance;
             // Pass the Nframe to the MC class
             N_frame = sys.N_frame;

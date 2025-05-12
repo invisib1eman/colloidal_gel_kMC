@@ -67,6 +67,7 @@ class System
     
         desc.add_options()
         ("help,h", "print usage message")
+        ("Charge,C", value<double>(&charge)->default_value(12.6), "charge (default 12.6)")
         ("NGRID,G",value<int>(&NGRID)->default_value(20),"grids(default 20)")
         ("NMOL,N", value<int>(&NMOL)->default_value(1000), "#molecules (default 1000)")
         ("box_length,L", value<double>(&BoxLength)->default_value(50.0), "length of box (default 50.0)")
