@@ -2,7 +2,7 @@
 #define _PARTICLE_H
 #include "header.h"
 #include "xyz.h"
-//#include "quarternion.h"
+//#include "quaternion.h"
 #include "bond.h"
 class Particle
 {

@@ -4,10 +4,12 @@
 #include "header.h"
 #include "xyz.h"
 #include "system.h"
+#include "quaternion.h"
 XYZ image(XYZ , double);
 double min_d2(XYZ a, XYZ b, double BoxLength);
 double myfmod(double x, double y);
 XYZ RandomTranslate(XYZ old, double step,double u,double v);
+quaternion RandomRotation(quaternion old,double step,double u,double v);
 double inner_product(XYZ a,XYZ b);
 XYZ cross_product(XYZ a,XYZ b);
 double angle_vectors(XYZ a,XYZ b);
@@ -18,7 +20,7 @@ int GridIndex_index(int i,int j,int k,int n);//return gridindex based on index o
 int GridIndex_xyz(XYZ& p,int n,double dl,double BoxLength);//return gridindex based on position p, dl is grid length
 void GridLoc(int& i,int& j,int& k,int n,int index);//update xyz index based on grid index
 int neighborarm(int n);
-//quarternion Rotate(quarternion old,double a,double b,double c);
+//quaternion Rotate(quaternion old,double a,double b,double c);
 XYZ real_vector(XYZ origin,double BoxLength);
 // vector<Molecule> generate_unitcell(Molecule M1);
 // vector<Molecule> generate_newunit(vector<Molecule> origin_cell,int latticeindex1,int latticeindex2,int latticeindex3);

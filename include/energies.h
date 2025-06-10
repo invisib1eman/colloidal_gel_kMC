@@ -22,6 +22,8 @@ public:
     double morse_well_depth;
     double morse_a;
     double morse_r0;
+    double yukawa_a;
+    double yukawa_debye_length;
     double morse_potential(double r2)
     {
         double r = sqrt(r2);
@@ -38,6 +40,7 @@ public:
     }
     double Debye_Huckel(double r2)
     {
+        
         double r = sqrt(r2);
         if (r > cutoff_distance)
         {
@@ -49,6 +52,18 @@ public:
             double shift = prefactor*exp(-cutoff_distance/debye_length)/cutoff_distance;
             double U = prefactor*exp(-r/debye_length)/r - shift;
             return U;
+        }
+    }
+    double yukawa(double r2)
+    {
+        double r = sqrt(r2);
+        if (r > cutoff_distance)
+        {
+            return 0;
+        }
+        else
+        {
+            return yukawa_a*well_edge*exp(-(r-well_edge)/yukawa_debye_length)/r;
         }
     }
     double potential_well(double r2)
@@ -66,6 +81,10 @@ public:
         {
             return 0;
         }
+    }
+    double total_energy_yukawa(double r2)
+    {
+        return yukawa(r2)+potential_well(r2);
     }
     double total_energy(double r2)
     {

@@ -3,7 +3,7 @@
 #define _SYSTEM_H
 #include "header.h"
 #include "xyz.h"
-// #include "quarternion.h"
+// #include "quaternion.h"
 #include "utils.h"
 #include "grid.h"
 #include "aggregate.h"
@@ -18,6 +18,8 @@ class System
     double morse_a=0.5;
     double morse_r0=2.0;
     double morse_well_depth=-5;
+    double yukawa_a=1.0;
+    double yukawa_debye_length=0.91875;
     vector<Particle> P; //List of molecules
     vector<Aggregate> Ag;
     vector<Grid> G;//grid list
@@ -46,6 +48,7 @@ class System
     int nsweep; //Number of MC sweeps
     double deltat; //Timestep
     double MCstep; //Step size of translation
+    double MCstep_rotation; //Step size of rotation
     int N_frame; //Number of frames
     double free_bond_freeenergy=-1;//free bond entropy
     bool fake_acceleration = 0;//1 is true 0 is false
@@ -78,7 +81,7 @@ class System
         ("Description,D", value<string>(&Description)->default_value("colloidgel"), "Description (default colloidgel)")
         ("well_width,w", value<double>(&well_width)->default_value(0.05), "well width (default 0.05)")
         ("well_depth,W", value<double>(&well_depth)->default_value(-10000), "well depth (default -10000)")
-        ("mode", value<string>(&mode)->default_value("cluster_free_roll"), "mode (default cluster_free_roll) (choices: cluster_free_roll, cluster_rigid, single_particle, cluster_alpha, cluster_alpha_morse)")
+        ("mode", value<string>(&mode)->default_value("cluster_free_roll"), "mode (default cluster_free_roll) (choices: cluster_free_roll, cluster_rigid, single_particle, cluster_alpha, cluster_alpha_morse, cluster_free_roll_yukawa)")
         ("alpha", value<double>(&alpha)->default_value(0.33), "alpha (default 0.33) (D~N^(-alpha))")
         ("morse_range,M", value<double>(&morse_range)->default_value(1.0), "morse range (default 1.0)")
         ("morse_r0,R", value<double>(&morse_r0)->default_value(2.0), "morse r0 (default 2.0)")
@@ -93,7 +96,9 @@ class System
         ("log,l", value<string>(&log_file_name)->default_value("a.log"), "log file name (default a.log)")
         ("read_xyz,x", value<bool>(&read_xyz)->default_value(0), "read xyz (default 0)")
         ("read_xyz_file", value<string>(&read_xyz_file_name)->default_value("a.xyz"), "read xyz file name (default a.xyz)")
-        ("nframe,n", value<int>(&N_frame)->default_value(1000), "Number of frames (default 1000)");
+        ("nframe,n", value<int>(&N_frame)->default_value(1000), "Number of frames (default 1000)")
+        ("yukawa_a", value<double>(&yukawa_a)->default_value(1.0), "yukawa a (default 1.0)")
+        ("yukawa_debye_length", value<double>(&yukawa_debye_length)->default_value(0.91875), "yukawa debye length (default 0.91875)");
         // define the input machine
         variables_map vm;
         store(parse_command_line(argc, argv, desc), vm);
@@ -128,7 +133,7 @@ class System
         {
             nsweep=int(ceil(total_time/deltat));
         }
-        if (mode == "cluster_free_roll" or mode == "cluster_alpha" or mode == "cluster_alpha_morse")
+        if (mode == "cluster_free_roll" or mode == "cluster_alpha" or mode == "cluster_alpha_morse" or mode == "cluster_free_roll_rotation" or mode == "cluster_free_roll_yukawa")
         {
             p_crawl = (1.0/tau_crawl)/(1.0/tau_crawl+1.0);
             nsweep=int(ceil(total_time/deltat));
@@ -151,6 +156,7 @@ class System
             exit(1);
         }
         NCELL=NMOL/NGRID3;
+        MCstep_rotation=MCstep*sqrt(3.0/4.0)/R;
     }
     
     void Create();

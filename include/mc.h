@@ -7,6 +7,7 @@
 // #include "hbond.h"
 #include "energies.h"
 #include "grid.h"
+#include "quaternion.h"
 class MC
 {
     public:
@@ -29,7 +30,7 @@ class MC
             E.well_width = sys.well_width;
             E.well_edge = sys.R_hardcore + sys.well_width;
             E.well_depth = sys.well_depth;
-            // Setup the R_hardcore_DH the same as the well_edge (hardcore radius)
+            // Setup the R_hardcore_DH the same as the R(core radius)
             E.R_hardcore_DH = sys.R;
             E.cutoff_distance = sys.cutoff_distance;
             // Pass the Nframe to the MC class
@@ -37,6 +38,14 @@ class MC
             E.morse_a = sys.morse_a;
             E.morse_r0 = sys.morse_r0;
             E.morse_well_depth = sys.morse_well_depth;
+            E.yukawa_a = sys.yukawa_a;
+            E.yukawa_debye_length = sys.yukawa_debye_length;
+            double saturation_charge = 4*E.R_hardcore_DH*(1+E.R_hardcore_DH/E.debye_length)/E.bjerrum_length;
+            if (E.charge > saturation_charge)
+            {
+                E.charge = saturation_charge;
+                cout << "Saturation charge: " << E.charge << endl;
+            }
         }
         void WriteTemplate();
         void LogProfile(int, double );
@@ -44,6 +53,8 @@ class MC
         double MoveParticle_Single_Particle();
         double MoveParticle_Cluster_Rigid();
         double MoveParticle_Cluster_Free_Roll();
+        double MoveParticle_Cluster_Free_Roll_Yukawa();
+        double MoveParticle_Cluster_Free_Roll_Rotation();
         double MoveParticle_Cluster_Alpha();
         double MoveParticle_Cluster_Alpha_Morse();
         bool Glauber(double, double);
