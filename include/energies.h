@@ -68,7 +68,7 @@ public:
     double potential_well(double r2)
     {
         double r = sqrt(r2);
-        if (r < 2*cm_L && r > 2*R_hardcore)
+        if (r < cm_L && r > 2*R_hardcore)
         {
             return well_depth;
         }

@@ -692,6 +692,9 @@ double MC::MoveParticle_Cluster_Free_Roll()
 }
 double MC::MoveParticle_Cluster_Free_Roll_Yukawa()
 {
+    // precalculate the energy barrier
+    double energy_barrier_outside = E.total_energy_yukawa(S.search2_cm+0.00001);
+    double energy_barrier_inside = E.total_energy_yukawa(S.search2_cm-0.00001);
     double accept=0.0;//accept events
     int index;
     int N_ag_start = S.Ag.size();
@@ -763,10 +766,18 @@ double MC::MoveParticle_Cluster_Free_Roll_Yukawa()
                         double new_r2 = min_d2(new_particle.position,S.P[l].position,S.BoxLength);
                         // the energy difference is captured by the energy barrier
                         // if the particle goes across the potential well, the energy difference is captured by the energy difference between the edge and the original position
-                        if ((new_r2 < S.search2_cm && old_r2 > S.search2_cm) || (new_r2 > S.search2_cm && old_r2 < S.search2_cm))
+                        if (new_r2 < S.search2_cm && old_r2 > S.search2_cm)
                         {
-                            double de = E.total_energy_yukawa(S.search2_cm) - E.total_energy_yukawa(old_r2);
+                            double de = energy_barrier_outside - E.total_energy_yukawa(old_r2);
                             delta_energy += de;
+                        }
+                        else if (new_r2 > S.search2_cm && old_r2 < S.search2_cm)
+                        {
+                        
+                            double de = energy_barrier_inside - E.total_energy_yukawa(old_r2);
+                            delta_energy += de;
+                            cout << "inside energy barrier as a cluster: wrong" << endl;
+                            exit(1);
                         }
                         else
                         {
@@ -915,9 +926,14 @@ double MC::MoveParticle_Cluster_Free_Roll_Yukawa()
                     double new_r2 = min_d2(new_particle.position,S.P[l].position,S.BoxLength);
                     // the energy difference is captured by the energy barrier
                     // if the particle goes across the potential well, the energy difference is captured by the energy difference between the edge and the original position
-                    if ((new_r2 < S.search2_cm && old_r2 > S.search2_cm) || (new_r2 > S.search2_cm && old_r2 < S.search2_cm))
+                    if (new_r2 < S.search2_cm && old_r2 > S.search2_cm)
                     {
-                        double de = E.total_energy_yukawa(S.search2_cm) - E.total_energy_yukawa(old_r2);
+                        double de = energy_barrier_outside - E.total_energy_yukawa(old_r2);
+                        delta_energy += de;
+                    }
+                    else if (new_r2 > S.search2_cm && old_r2 < S.search2_cm)
+                    {
+                        double de = energy_barrier_inside - E.total_energy_yukawa(old_r2);
                         delta_energy += de;
                     }
                     else
