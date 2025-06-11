@@ -15,14 +15,13 @@ public:
     double BoxLength;
     double R_hardcore;
     double well_depth = -10000;
-    double well_width;
-    double well_edge;
+    double cm_L;
     double R_hardcore_DH;
     double cutoff_distance;
     double morse_well_depth;
     double morse_a;
     double morse_r0;
-    double yukawa_a;
+    double yukawa_e;
     double yukawa_debye_length;
     double morse_potential(double r2)
     {
@@ -63,13 +62,13 @@ public:
         }
         else
         {
-            return yukawa_a*well_edge*exp(-(r-well_edge)/yukawa_debye_length)/r;
+            return yukawa_e*cm_L*exp(-(r-cm_L)/yukawa_debye_length)/r;
         }
     }
     double potential_well(double r2)
     {
         double r = sqrt(r2);
-        if (r < 2*well_edge && r > 2*R_hardcore)
+        if (r < 2*cm_L && r > 2*R_hardcore)
         {
             return well_depth;
         }

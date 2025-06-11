@@ -18,7 +18,7 @@ class System
     double morse_a=0.5;
     double morse_r0=2.0;
     double morse_well_depth=-5;
-    double yukawa_a=1.0;
+    double yukawa_e=1.0;
     double yukawa_debye_length=0.91875;
     vector<Particle> P; //List of molecules
     vector<Aggregate> Ag;
@@ -37,11 +37,11 @@ class System
     double charge = 12.6;//charge of the molecule
     double debye_length = 0.91875;//debye length 7.35 nm at 0.9 mM salt
     double bjerrum_length = 0.1875;//bjerrum length
-    double well_width = 0.05;//well width
-    double well_edge = R_hardcore + well_width; //well edge = 10nm
+    double well_width = 0.05;//well width for one particle
+    double well_edge = R_hardcore + well_width; //well edge = 10nm, well edge for one particle
     double well_depth = -10000;
-    double cm_L = well_edge * 2;//the cm distance when it is possible to form a bond
-    double search2_cm = pow(cm_L,2);//the cm distance when it is possible to form a bond
+    double cm_L = well_edge * 2;//the cm distance when it is possible to form a bond, that is the distance between two particles when they are at edge of the well
+    double search2_cm = pow(cm_L,2);//square of cm_L
     double cutoff_distance; //cutoff distance = 2 * well_edge + 4 * debye_length
     double BoxLength; //Length of box
     int GSL_SEED; //Seed of random number generator
@@ -54,7 +54,8 @@ class System
     bool fake_acceleration = 0;//1 is true 0 is false
     bool read_restart = 0;//1 is true 0 is false
     bool read_xyz = 0;//1 is true 0 is false
-    double tau_crawl = 100; // crawl time scale is 100*dt
+    // tau_crawl is the time scale of the crawl move only in the irreversible bonding regime. It also affects the time scale of single particle breaking events, so it should be set to 1 when the bonding is reversible.
+    double tau_crawl = 1; // crawl time scale is 100*dt
     double p_crawl = (1.0/tau_crawl)/(1.0/tau_crawl+1.0); // probability of crawl
     string dump_file_name;
     string read_restart_file_name;
@@ -88,7 +89,7 @@ class System
         ("morse_well_depth,W", value<double>(&morse_well_depth)->default_value(-5), "morse well depth (default -5)")
         ("fake_acceleration,a", value<bool>(&fake_acceleration)->default_value(0), "fake acceleration (default 0)")
         ("read_restart,r", value<bool>(&read_restart)->default_value(0), "read restart (default 0)")
-        ("tcrawl", value<double>(&tau_crawl)->default_value(100), "crawl time scale (default 100)")
+        ("tcrawl", value<double>(&tau_crawl)->default_value(1), "crawl time scale (default 1, can only differ from 1 when the bonding is irreversible)")
         ("dump", value<string>(&dump_file_name)->default_value("a.lammpsdump"), "dump file name (default a.lammpsdump)")
         ("restart", value<string>(&restart_file_name)->default_value("a.restart"), "restart file name (default a.restart)")
         ("read_restart_file", value<string>(&read_restart_file_name)->default_value("a.restart"), "read restart file name (default a.restart)")
@@ -97,7 +98,7 @@ class System
         ("read_xyz,x", value<bool>(&read_xyz)->default_value(0), "read xyz (default 0)")
         ("read_xyz_file", value<string>(&read_xyz_file_name)->default_value("a.xyz"), "read xyz file name (default a.xyz)")
         ("nframe,n", value<int>(&N_frame)->default_value(1000), "Number of frames (default 1000)")
-        ("yukawa_a", value<double>(&yukawa_a)->default_value(1.0), "yukawa a (default 1.0)")
+        ("yukawa_e", value<double>(&yukawa_e)->default_value(1.0), "yukawa a (default 1.0)")
         ("yukawa_debye_length", value<double>(&yukawa_debye_length)->default_value(0.91875), "yukawa debye length (default 0.91875)");
         // define the input machine
         variables_map vm;

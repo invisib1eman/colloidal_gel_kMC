@@ -605,6 +605,7 @@ double MC::MoveParticle_Cluster_Free_Roll()
         {
             index = gsl_rng_uniform_int(S.gsl_r,S.NMOL);
             Particle new_particle = S.P[index];
+            // if the aggregate is a single particle, skip the move because the move is for internal relaxation and possible single particle breaking
             if (S.Ag[new_particle.A_ID].n == 1) 
             {
                 continue;
@@ -732,14 +733,13 @@ double MC::MoveParticle_Cluster_Free_Roll_Yukawa()
                 p.gID = GridIndex_xyz(image_position,S.NGRID,S.GRIDL,S.BoxLength);
                 new_particles.push_back(p);
             }
-            // Calculate the energy difference and glauber acceptance
+            // Calculate the energy difference and glauber acceptance, when the particle cross the edge of the potential well, use the energy of the energy barrier as the delta energy
             double delta_energy = 0;
             for(int j=0; j<new_ag.n; j++) {
                 int pID = new_ag.plist[j];
                 Particle old_particle = S.P[pID];
                 Particle new_particle = new_particles[j];
                 int oldgID = old_particle.gID;
-                int newgID = new_particle.gID;
                 for(int k=0; k<S.G[oldgID].nbr.size(); k++)
                 {
                     int ngID = S.G[oldgID].nbr[k];
@@ -758,34 +758,25 @@ double MC::MoveParticle_Cluster_Free_Roll_Yukawa()
                         {
                             continue;
                         }
+                        
                         double old_r2 = min_d2(old_particle.position,S.P[l].position,S.BoxLength);
-                        double de = - E.total_energy_yukawa(old_r2);
-                        delta_energy += de;
-                    }
-                }
-                for(int k=0; k<S.G[newgID].nbr.size(); k++)
-                {
-                    int ngID = S.G[newgID].nbr[k];
-                    if(S.G[ngID].plist.empty())
-                    {
-                        continue;
-                    }
-                    //iterate about molecules in the neighborlist
-                    list<int>::iterator it;
-                    for(it=S.G[ngID].plist.begin();it!=S.G[ngID].plist.end();it++)
-                    {
-                        int l=*it;
-                        int A_ID1 = S.P[pID].A_ID;
-                        int A_ID2 = S.P[l].A_ID;
-                        if(A_ID1 == A_ID2)
+                        double new_r2 = min_d2(new_particle.position,S.P[l].position,S.BoxLength);
+                        // the energy difference is captured by the energy barrier
+                        // if the particle goes across the potential well, the energy difference is captured by the energy difference between the edge and the original position
+                        if ((new_r2 < S.search2_cm && old_r2 > S.search2_cm) || (new_r2 > S.search2_cm && old_r2 < S.search2_cm))
                         {
-                            continue;
+                            double de = E.total_energy_yukawa(S.search2_cm) - E.total_energy_yukawa(old_r2);
+                            delta_energy += de;
                         }
-                        double new_r2 = min_d2(new_particles[j].position,S.P[l].position,S.BoxLength);
-                        double de = E.total_energy_yukawa(new_r2);
-                        delta_energy += de;
+                        else
+                        {
+                            double de = E.total_energy_yukawa(new_r2) - E.total_energy_yukawa(old_r2);
+                            delta_energy += de;
+                        }
+                       
                     }
                 }
+            
             }
             double rand = gsl_rng_uniform(S.gsl_r);
             if(Glauber(delta_energy,rand)) 
@@ -888,6 +879,7 @@ double MC::MoveParticle_Cluster_Free_Roll_Yukawa()
         {
             index = gsl_rng_uniform_int(S.gsl_r,S.NMOL);
             Particle new_particle = S.P[index];
+            // if the aggregate is a single particle, skip the move because the move is for internal relaxation and possible single particle breaking
             if (S.Ag[new_particle.A_ID].n == 1) 
             {
                 continue;
@@ -899,7 +891,7 @@ double MC::MoveParticle_Cluster_Free_Roll_Yukawa()
             double delta_energy = 0;
             Particle old_particle = S.P[index];
             int oldgID = old_particle.gID;
-            int newgID = new_particle.gID;
+            // only use the old gid, because even the particles enter the new grid, the neighborlist that has relevent interaction with the particle should not change
             // Calculate energy difference for the particle move
             // First, remove the current particle from neighbors' nbr_particles lists
             
@@ -920,38 +912,29 @@ double MC::MoveParticle_Cluster_Free_Roll_Yukawa()
                         continue;
                     }
                     double old_r2 = min_d2(old_particle.position,S.P[l].position,S.BoxLength);
+                    double new_r2 = min_d2(new_particle.position,S.P[l].position,S.BoxLength);
+                    // the energy difference is captured by the energy barrier
+                    // if the particle goes across the potential well, the energy difference is captured by the energy difference between the edge and the original position
+                    if ((new_r2 < S.search2_cm && old_r2 > S.search2_cm) || (new_r2 > S.search2_cm && old_r2 < S.search2_cm))
+                    {
+                        double de = E.total_energy_yukawa(S.search2_cm) - E.total_energy_yukawa(old_r2);
+                        delta_energy += de;
+                    }
+                    else
+                    {
+                        double de = E.total_energy_yukawa(new_r2) - E.total_energy_yukawa(old_r2);
+                        delta_energy += de;
+                    }
                     // if (new_r2 < 1)
                     // {
                     //     cout << "Too close" << endl;
                     //     exit(1);
                     // }
-                    double de = - E.total_energy_yukawa(old_r2);
-                    delta_energy += de;
+                    
 
                 }
             }
-            for(int k=0; k<S.G[newgID].nbr.size(); k++)
-            {
-                int ngID = S.G[newgID].nbr[k];
-                if(S.G[ngID].plist.empty())
-                {
-                    continue;
-                }
-                //iterate about molecules in the neighborlist
-                list<int>::iterator it;
-                for(it=S.G[ngID].plist.begin();it!=S.G[ngID].plist.end();it++)
-                {
-                    int l=*it;
-                    if(l == index)
-                    {
-                        continue;
-                    }
-                    double new_r2 = min_d2(new_particle.position,S.P[l].position,S.BoxLength);
-                    double de = E.total_energy_yukawa(new_r2);
-                    delta_energy += de;
-
-                }
-            }
+            
             if(Glauber(delta_energy,gsl_rng_uniform(S.gsl_r)))
             {
                 accept += 1.0;

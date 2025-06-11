@@ -27,8 +27,7 @@ class MC
             E.charge = sys.charge;
             E.BoxLength = sys.BoxLength;
             E.R_hardcore = sys.R_hardcore;
-            E.well_width = sys.well_width;
-            E.well_edge = sys.R_hardcore + sys.well_width;
+            E.cm_L = sys.cm_L;
             E.well_depth = sys.well_depth;
             // Setup the R_hardcore_DH the same as the R(core radius)
             E.R_hardcore_DH = sys.R;
@@ -38,7 +37,7 @@ class MC
             E.morse_a = sys.morse_a;
             E.morse_r0 = sys.morse_r0;
             E.morse_well_depth = sys.morse_well_depth;
-            E.yukawa_a = sys.yukawa_a;
+            E.yukawa_e = sys.yukawa_e;
             E.yukawa_debye_length = sys.yukawa_debye_length;
             double saturation_charge = 4*E.R_hardcore_DH*(1+E.R_hardcore_DH/E.debye_length)/E.bjerrum_length;
             if (E.charge > saturation_charge)
