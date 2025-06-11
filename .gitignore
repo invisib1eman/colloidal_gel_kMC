@@ -7,7 +7,7 @@ cmake-build-*/
 .idea/
 .vscode/
 *.swp
-
+./bin
 # CMake
 CMakeCache.txt
 CMakeFiles/
