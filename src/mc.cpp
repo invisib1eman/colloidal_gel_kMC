@@ -23,6 +23,7 @@ void MC::Sweep()
     
     WriteTemplate();
 	LogProfile(0,accept);
+    Log_event_template();
     // Sweep
     if (S.mode == "single_particle")
     {
@@ -66,6 +67,7 @@ void MC::Sweep()
             {
                 
                 LogProfile(i,accept);
+                Log_event();
                 S.WriteDump(i);
                 accept=0.0;
             }
@@ -152,6 +154,39 @@ void MC::LogProfile(int i, double accept)
     out.open(FileName, ios::app);
     out<<setw(12)<<i<<"\t"<<setw(12)<<time<<"\t"<<setw(12)<<S.Ag.size()<<setw(12)<<accept<<"\t"<<endl;
     out.close();
+}
+void MC::Log_event_template()
+{
+    std::string FileName = S.log_event_file_name;
+    std::ofstream out(FileName, std::ios::trunc);
+
+    // Print headers
+    out << std::setw(12) << "event"
+        << std::setw(12) << "time";
+
+    // Forward transitions: 0to1, 1to2, ..., 11to12
+    for (int i = 0; i < 12; i++) {
+        std::ostringstream label;
+        label << i << "to" << (i + 1);
+        out << std::setw(12) << label.str();
+    }
+
+    // Backward transitions: 1to0, 2to1, ..., 12to11
+    for (int i = 1; i <= 12; i++) {
+        std::ostringstream label;
+        label << i << "to" << (i - 1);
+        out << std::setw(12) << label.str();
+    }
+
+    out << std::endl;
+    out.close();
+}
+void MC::Log_event()
+{
+    string FileName = S.log_event_file_name;
+    ofstream out;
+    out.open(FileName,ios::app);
+    out<<setw(12)<<"event"<<"\t"<<setw(12)<<"time"<<"\t"<<setw(12);
 }
 //mode: single_particle
 double MC::MoveParticle_Single_Particle()
@@ -774,7 +809,7 @@ double MC::MoveParticle_Cluster_Free_Roll_Yukawa()
                         else if (new_r2 > S.search2_cm && old_r2 < S.search2_cm)
                         {
                         
-                            double de = energy_barrier_inside - E.total_energy_yukawa(old_r2);
+                            double de = energy_barrier_outside - E.total_energy_yukawa(old_r2);
                             delta_energy += de;
                             cout << "inside energy barrier as a cluster: wrong" << endl;
                             exit(1);
@@ -933,7 +968,7 @@ double MC::MoveParticle_Cluster_Free_Roll_Yukawa()
                     }
                     else if (new_r2 > S.search2_cm && old_r2 < S.search2_cm)
                     {
-                        double de = energy_barrier_inside - E.total_energy_yukawa(old_r2);
+                        double de = energy_barrier_outside - E.total_energy_yukawa(old_r2);
                         delta_energy += de;
                     }
                     else

@@ -63,6 +63,7 @@ class System
     string data_file_name;
     string log_file_name;
     string read_xyz_file_name;
+    string log_event_file_name;
     void ReadInput(int argc, char *argv[])
     {
         double total_time;
@@ -99,6 +100,7 @@ class System
         ("read_xyz_file", value<string>(&read_xyz_file_name)->default_value("a.xyz"), "read xyz file name (default a.xyz)")
         ("nframe,n", value<int>(&N_frame)->default_value(1000), "Number of frames (default 1000)")
         ("yukawa_e", value<double>(&yukawa_e)->default_value(1.0), "yukawa a (default 1.0)")
+        ("log_event_file", value<string>(&log_event_file_name)->default_value("a.log_event"), "log event file name (default a.log_event)")
         ("yukawa_debye_length", value<double>(&yukawa_debye_length)->default_value(0.91875), "yukawa debye length (default 0.91875)");
         // define the input machine
         variables_map vm;
