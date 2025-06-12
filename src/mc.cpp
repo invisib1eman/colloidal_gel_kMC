@@ -23,6 +23,8 @@ void MC::Sweep()
     
     WriteTemplate();
 	LogProfile(0,accept);
+    ecount.resize(169);
+    cout << "Size of vector: " << ecount.size() << endl;
     Log_event_template();
     // Sweep
     if (S.mode == "single_particle")
@@ -67,7 +69,8 @@ void MC::Sweep()
             {
                 
                 LogProfile(i,accept);
-                Log_event();
+                Log_event(i);
+                fill(ecount.begin(), ecount.end(), 0);
                 S.WriteDump(i);
                 accept=0.0;
             }
@@ -155,38 +158,41 @@ void MC::LogProfile(int i, double accept)
     out<<setw(12)<<i<<"\t"<<setw(12)<<time<<"\t"<<setw(12)<<S.Ag.size()<<setw(12)<<accept<<"\t"<<endl;
     out.close();
 }
+
 void MC::Log_event_template()
 {
     std::string FileName = S.log_event_file_name;
     std::ofstream out(FileName, std::ios::trunc);
 
     // Print headers
-    out << std::setw(12) << "event"
+    out << std::setw(12) << "i"
         << std::setw(12) << "time";
 
     // Forward transitions: 0to1, 1to2, ..., 11to12
-    for (int i = 0; i < 12; i++) {
+    for (int i = 0; i <= 12; i++) 
+        for (int j = 0; j <= 12; j++)
+    {
         std::ostringstream label;
-        label << i << "to" << (i + 1);
+        label << i << "to" << j;
         out << std::setw(12) << label.str();
     }
 
-    // Backward transitions: 1to0, 2to1, ..., 12to11
-    for (int i = 1; i <= 12; i++) {
-        std::ostringstream label;
-        label << i << "to" << (i - 1);
-        out << std::setw(12) << label.str();
-    }
 
     out << std::endl;
     out.close();
 }
-void MC::Log_event()
+void MC::Log_event(int i)
 {
     string FileName = S.log_event_file_name;
     ofstream out;
     out.open(FileName,ios::app);
-    out<<setw(12)<<"event"<<"\t"<<setw(12)<<"time"<<"\t"<<setw(12);
+    out<<setw(12)<<i<<setw(12)<<time;
+    for(int j=0; j<ecount.size(); j++)
+    {
+        out<<setw(12)<<ecount[j];
+    }
+    out<<endl;
+    out.close();
 }
 //mode: single_particle
 double MC::MoveParticle_Single_Particle()
@@ -879,7 +885,36 @@ double MC::MoveParticle_Cluster_Free_Roll_Yukawa()
                             {
                                 // Store the particle list from the old aggregate before any modifications
                                 vector<int> old_ag_particles = S.Ag[A_ID2].plist;
-                                
+                                // find all new bonds between the two aggregates
+                                for(int k=0; k<S.Ag[A_ID1].n; k++)
+                                {
+                                    int pid = S.Ag[A_ID1].plist[k];
+                                    int new_bonds = 0;
+                                    vector<int> new_neighbor_list;
+                                    for(int l=0; l<S.Ag[A_ID2].n; l++)
+                                    {
+                                        int npid = S.Ag[A_ID2].plist[l];
+                                        double r2 = min_d2(S.P[pid].position,S.P[npid].position,S.BoxLength);
+                                        if(r2<S.search2_cm)
+                                        {
+                                            S.P[npid].nbonds += 1;
+                                            S.P[npid].nbr_particles.insert(pid);
+                                            new_neighbor_list.push_back(npid);
+                                            new_bonds += 1;
+                                        }
+                                    }
+                                    if(new_bonds > 0)
+                                    {
+                                        // trigger an event
+                                        int old_neighbor_number = S.P[pid].nbonds;
+                                        S.P[pid].nbr_particles.insert(new_neighbor_list.begin(), new_neighbor_list.end());
+                                        S.P[pid].nbonds += new_bonds;
+                                        int new_neighbor_number = S.P[pid].nbonds;
+                                        int event_id = old_neighbor_number * 13 + new_neighbor_number;
+                                        ecount[event_id] += 1;
+                                    
+                                    }
+                                }
                                 // Create combined aggregate
                                 Aggregate combine_ag = S.Ag[A_ID1];
                                 combine_ag.n = S.Ag[A_ID2].n + combine_ag.n;
@@ -920,10 +955,13 @@ double MC::MoveParticle_Cluster_Free_Roll_Yukawa()
     // Single particle crawl (relaxation) happens with probability p_crawl
     else
     {
+        
         // Loop over all particles
         for(int i=0; i<S.NMOL; i++)
         {
             index = gsl_rng_uniform_int(S.gsl_r,S.NMOL);
+            int neighbor_change = 0;
+            int old_neighbor_number = S.P[index].nbonds;
             Particle new_particle = S.P[index];
             // if the aggregate is a single particle, skip the move because the move is for internal relaxation and possible single particle breaking
             if (S.Ag[new_particle.A_ID].n == 1) 
@@ -965,11 +1003,13 @@ double MC::MoveParticle_Cluster_Free_Roll_Yukawa()
                     {
                         double de = energy_barrier_outside - E.total_energy_yukawa(old_r2);
                         delta_energy += de;
+                        neighbor_change += 1;
                     }
                     else if (new_r2 > S.search2_cm && old_r2 < S.search2_cm)
                     {
                         double de = energy_barrier_outside - E.total_energy_yukawa(old_r2);
                         delta_energy += de;
+                        neighbor_change -= 1;
                     }
                     else
                     {
@@ -997,6 +1037,12 @@ double MC::MoveParticle_Cluster_Free_Roll_Yukawa()
                 S.G[new_particle.gID].n += 1;
                 S.G[new_particle.gID].plist.push_back(index);
                 S.P[index] = new_particle;
+                if (neighbor_change != 0)
+                {
+                    int new_neighbor_number = old_neighbor_number + neighbor_change;
+                    int event_id = old_neighbor_number * 13 + new_neighbor_number;
+                    ecount[event_id] += 1;
+                }
     
             }
             
@@ -1918,6 +1964,7 @@ void MC::Find_Neighbors()
     for(int i=0; i<S.NMOL; i++)
     {
         S.P[i].nbr_particles.clear();
+        S.P[i].nbonds = 0;
     }
     
     // Loop through all grid cells
@@ -1960,6 +2007,8 @@ void MC::Find_Neighbors()
                     {
                         S.P[pid].nbr_particles.insert(npid);
                         S.P[npid].nbr_particles.insert(pid);
+                        S.P[pid].nbonds += 1;
+                        S.P[npid].nbonds += 1;
                     }
                 }
             }

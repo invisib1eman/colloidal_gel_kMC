@@ -8,7 +8,8 @@
         "*.tcc": "cpp",
         "iosfwd": "cpp",
         "list": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "vector": "cpp"
     },
     "C_Cpp.dimInactiveRegions": false
 }

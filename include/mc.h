@@ -19,7 +19,8 @@ class MC
         int nbr_g=27;//number of number grids
         //new vector for molecule
         vector<Particle> Pnew;
-        vector<int> event_count;
+        vector<int> ecount;
+        
         // MC constructor
         MC(System& sys) : S(sys) {
             //Initialize the energy class
@@ -50,7 +51,7 @@ class MC
         void WriteTemplate();
         void LogProfile(int, double );
         void Log_event_template();
-        void Log_event();
+        void Log_event(int);
         void Sweep();
         double MoveParticle_Single_Particle();
         double MoveParticle_Cluster_Rigid();
