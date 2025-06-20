@@ -23,7 +23,7 @@ void MC::Sweep()
     
     WriteTemplate();
 	LogProfile(0,accept);
-    ecount.resize(169);
+    ecount.resize(170);
     cout << "Size of vector: " << ecount.size() << endl;
     Log_event_template();
     // Sweep
@@ -176,6 +176,7 @@ void MC::Log_event_template()
         label << i << "to" << j;
         out << std::setw(12) << label.str();
     }
+    out << std::setw(12) << "coalescence";
 
 
     out << std::endl;
@@ -835,6 +836,7 @@ double MC::MoveParticle_Cluster_Free_Roll_Yukawa()
             {
                 accept += 1.0;
                 S.Ag[index] = new_ag;
+                int aggregate_size = new_ag.n;
                 // First remove particles from their old grids
                 for(int j=0; j<new_ag.n; j++) {
                     int pid = new_ag.plist[j];
@@ -854,7 +856,7 @@ double MC::MoveParticle_Cluster_Free_Roll_Yukawa()
                     S.G[new_particles[j].gID].n += 1;
                     S.G[new_particles[j].gID].plist.push_back(new_particles[j].P_ID);
                 }
-
+                bool find_neighbor = false;
                 // Search for aggregate in the neighbor of the new particles
                 for(int j=0; j<new_ag.n; j++)
                 {
@@ -883,6 +885,7 @@ double MC::MoveParticle_Cluster_Free_Roll_Yukawa()
                             double r2 = min_d2(new_particles[j].position,S.P[l].position,S.BoxLength);
                             if(r2<S.search2_cm)
                             {
+                                find_neighbor = true;
                                 // Store the particle list from the old aggregate before any modifications
                                 vector<int> old_ag_particles = S.Ag[A_ID2].plist;
                                 // find all new bonds between the two aggregates
@@ -949,6 +952,12 @@ double MC::MoveParticle_Cluster_Free_Roll_Yukawa()
                         }    
                     }  
                 }  
+                if (find_neighbor && aggregate_size > 1)
+                {
+                    //trigger an coalescence event
+                    int event_id = 169;
+                    ecount[event_id] += 1;
+                }
             }   
         }
     }
