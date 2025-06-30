@@ -113,6 +113,11 @@ class System
             exit(1);
         }
         // define the random number generator
+        if (GSL_SEED == 10)  // If using default seed, generate from clock time
+        {
+            GSL_SEED = static_cast<int>(time(nullptr));
+        }
+        cout << "GSL_SEED: " << GSL_SEED << endl;
         gsl_rng_env_setup();
         gsl_T = gsl_rng_default;
         gsl_r = gsl_rng_alloc(gsl_T);
